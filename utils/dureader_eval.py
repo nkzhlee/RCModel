@@ -129,6 +129,19 @@ def compute_bleu_rouge(pred_dict, ref_dict, bleu_order=4):
     assert set(pred_dict.keys()) == set(ref_dict.keys()), \
             "missing keys: {}".format(set(ref_dict.keys()) - set(pred_dict.keys()))
     scores = {}
+    imgIds = ref_dict.keys()
+    resIds = pred_dict.keys()
+    # print ('ref_dict.keys()', ref_dict.keys())
+    # print ('pred_dict.keys()', pred_dict.keys())
+    # for id in imgIds:
+    #     hypo = ref_dict[id]
+    #     ref = pred_dict[id]
+    #     # Sanity check.
+    #     print ('type(hypo)',type(hypo))
+    #     print ('len(hypo)',len(hypo))
+    #     print ('type(ref)',type(ref))
+    #     print ('len(ref)',len(ref))
+
     bleu_scores, _ = Bleu(bleu_order).compute_score(ref_dict, pred_dict)
     for i, bleu_score in enumerate(bleu_scores):
         scores['Bleu-%d' % (i + 1)] = bleu_score

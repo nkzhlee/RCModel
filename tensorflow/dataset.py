@@ -63,6 +63,7 @@ class BRCDataset(object):
             for lidx, line in enumerate(fin):
                 sample = json.loads(line.strip())
                 if train:
+                    #print sample['answer_spans']
                     if len(sample['answer_spans']) == 0:
                         continue
                     if sample['answer_spans'][0][1] >= self.max_p_len:
@@ -95,6 +96,7 @@ class BRCDataset(object):
                         para_infos.sort(key=lambda x: (-x[1], x[2]))
                         fake_passage_tokens = []
                         for para_info in para_infos[:1]:
+                            #print "66"+str(para_info)
                             fake_passage_tokens += para_info[0]
                         sample['passages'].append({'passage_tokens': fake_passage_tokens})
                 data_set.append(sample)
@@ -111,8 +113,10 @@ class BRCDataset(object):
             one batch of data
         """
         batch_data = {'raw_data': [data[i] for i in indices],
+                      'question_ids':[],
                       'question_token_ids': [],
                       'question_length': [],
+                      'padded_p_len':0,
                       'passage_token_ids': [],
                       'passage_length': [],
                       'start_id': [],
@@ -122,9 +126,17 @@ class BRCDataset(object):
         for sidx, sample in enumerate(batch_data['raw_data']):
             for pidx in range(max_passage_num):
                 if pidx < len(sample['passages']):
+                    #print pidx
+                    #print 'hahahhahah'+ str(sample['question_id'])
+                    batch_data['question_ids'].append(sample['question_id'])
                     batch_data['question_token_ids'].append(sample['question_token_ids'])
+                    #print 'question_token_ids: ' + str(sample['question_token_ids'])
                     batch_data['question_length'].append(len(sample['question_token_ids']))
+                    #print 'question_token_ids_len: ' + str(len(sample['question_token_ids']))
                     passage_token_ids = sample['passages'][pidx]['passage_token_ids']
+                    #print 'passage_token_ids' + str(passage_token_ids)
+                    #print 'len(passage_token_ids)' + str(len(passage_token_ids))
+                    #print 'max_p_len' + str(self.max_p_len)
                     batch_data['passage_token_ids'].append(passage_token_ids)
                     batch_data['passage_length'].append(min(len(passage_token_ids), self.max_p_len))
                 else:
@@ -133,11 +145,23 @@ class BRCDataset(object):
                     batch_data['passage_token_ids'].append([])
                     batch_data['passage_length'].append(0)
         batch_data, padded_p_len, padded_q_len = self._dynamic_padding(batch_data, pad_id)
+        batch_data['padded_p_len'] = padded_p_len
         for sample in batch_data['raw_data']:
             if 'answer_passages' in sample and len(sample['answer_passages']):
+                #print 'answer_passages'
+                #print sample['answer_passages']
+                #print sample['answer_passages'][0]
+                #print padded_p_len
+                #gold_passage_offset = 0
+                #for p in xrange(0,sample['answer_passages'][0]):
+                    #gold_passage_offset +=batch_data['passage_length'][p]
                 gold_passage_offset = padded_p_len * sample['answer_passages'][0]
+                #print 'answer_passages: '+ str(sample['answer_passages'])
                 batch_data['start_id'].append(gold_passage_offset + sample['answer_spans'][0][0])
                 batch_data['end_id'].append(gold_passage_offset + sample['answer_spans'][0][1])
+                #print 'gold_passage_offset: ' + str(gold_passage_offset)
+                #print 'start id: ' + str(batch_data['start_id'])
+                #print 'end id: ' + str(batch_data['end_id'])
             else:
                 # fake span for some samples, only valid for testing
                 batch_data['start_id'].append(0)
@@ -148,8 +172,15 @@ class BRCDataset(object):
         """
         Dynamically pads the batch_data with pad_id
         """
-        pad_p_len = min(self.max_p_len, max(batch_data['passage_length']))
+        #print 'dynamic _padding...'
+        #print 'pad_id' + str(pad_id)
+        pad_p_len = min(self.max_p_len, max(batch_data['passage_length']))+1
+        #print 'pad_p_len' + str(pad_p_len)
         pad_q_len = min(self.max_q_len, max(batch_data['question_length']))
+        #print 'pad_q_len' + str(pad_q_len)
+        #for ids in batch_data['passage_token_ids'] :
+            #print 'padding: '
+            #print (ids + [pad_id] * (pad_p_len - len(ids)))[: pad_p_len]
         batch_data['passage_token_ids'] = [(ids + [pad_id] * (pad_p_len - len(ids)))[: pad_p_len]
                                            for ids in batch_data['passage_token_ids']]
         batch_data['question_token_ids'] = [(ids + [pad_id] * (pad_q_len - len(ids)))[: pad_q_len]
@@ -222,3 +253,93 @@ class BRCDataset(object):
         for batch_start in np.arange(0, data_size, batch_size):
             batch_indices = indices[batch_start: batch_start + batch_size]
             yield self._one_mini_batch(data, batch_indices, pad_id)
+
+    def gen_batches(self, set_name, batch_size, pad_id, shuffle = True ):
+        """
+            Generate data batches for a specific dataset (train/dev/test)
+            Args:
+                set_name: train/dev/test to indicate the set
+                batch_size: number of samples in one batch
+                pad_id: pad id
+                shuffle: if set to be true, the data is shuffled.
+            Returns:
+                a generator for all batches
+        """
+        if set_name == 'train':
+            data = self.train_set
+        elif set_name == 'dev':
+            data = self.dev_set
+        elif set_name == 'test':
+            data = self.test_set
+        else:
+            raise NotImplementedError('No data set named as {}'.format(set_name))
+        data_size = len(data)
+        print 'data_size'
+        print data_size
+        indices = np.arange(data_size)
+        if shuffle:
+            np.random.shuffle(indices)
+        for batch_start in np.arange(0, data_size, batch_size):
+            batch_indices = indices[batch_start: batch_start + batch_size]
+            yield self._get_mini_batch(data, batch_indices, pad_id)
+
+    def _get_mini_batch(self, data, indices, pad_id):
+        """
+        Get one mini batch
+        Args:
+            data: all data
+            indices: the indices of the samples to be selected
+            pad_id:
+        Returns:
+            one batch of data
+        """
+        batch_data = {'raw_data': [data[i] for i in indices],
+                      'question_ids':[],
+                      'question_types':[],
+                      'question_token_ids': [],
+                      'question_length': [],
+                      'padded_p_len': 0,
+                      'passage_token_ids': [],
+                      'passage_length': [],
+                      'ref_answers':[],
+                      'ref_answers_length':[]
+                      }
+        for sidx, sample in enumerate(batch_data['raw_data']):
+            passage_length, passage_token_ids = 0, []
+            batch_data['question_ids'].append(sample['question_id'])
+            batch_data['question_types'].append((sample['question_type']))
+            batch_data['question_token_ids'].append(sample['question_token_ids'])
+            batch_data['question_length'].append(min(len(sample['question_token_ids']), self.max_p_len))
+            batch_data['ref_answers'].append(sample['answers'])
+            batch_data['ref_answers_length'].append(len(sample['answers']))
+            for pidx, passage in enumerate(sample['passages']):
+                #print 'pdix' + str(pidx)
+                passage_token_ids += passage['passage_token_ids']
+                passage_length += len(passage['passage_token_ids'])
+                #print len(passage['passage_token_ids'])
+            batch_data['passage_token_ids'].append(passage_token_ids)
+            batch_data['passage_length'].append(passage_length)
+
+        batch_data, padded_p_len, padded_q_len = self._dynamic_padding_new(batch_data, pad_id)
+        batch_data['padded_p_len'] = padded_p_len
+
+        return batch_data
+
+    def _dynamic_padding_new(self, batch_data, pad_id):
+        """
+        Dynamically pads the batch_data with pad_id
+        """
+        #print 'dynamic _padding...'
+        #print 'pad_id' + str(pad_id)
+        pad_p_len = min(self.max_p_len, max(batch_data['passage_length'])) + 1
+        #print 'pad_p_len' + str(pad_p_len)
+        pad_q_len = min(self.max_q_len, max(batch_data['question_length']))
+        #print 'pad_q_len' + str(pad_q_len)
+        #for ids in batch_data['passage_token_ids'] :
+            #print 'padding: '
+            #print (ids + [pad_id] * (pad_p_len - len(ids)))[: pad_p_len]
+        batch_data['passage_token_ids'] = [(ids + [pad_id] * (pad_p_len - len(ids)))[: pad_p_len]
+                                           for ids in batch_data['passage_token_ids']]
+        batch_data['question_token_ids'] = [(ids + [pad_id] * (pad_q_len - len(ids)))[: pad_q_len]
+                                            for ids in batch_data['question_token_ids']]
+        return batch_data, pad_p_len, pad_q_len

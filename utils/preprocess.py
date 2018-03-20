@@ -16,6 +16,13 @@
 # ==============================================================================
 """
 This module finds the most related paragraph of each document according to recall.
+
+cat data/raw/trainset/search.train.json | python utils/preprocess.py > data/preprocessed/trainset/search.train.json
+cat data/seg/search.train.json.part100 | python utils/preprocess.py > data/preprocessed/trainset/search.train.json.part100
+
+
+nohup python -u utils/preprocess.py ./data/seg/search/train/part1 ./data/preprocessed/trainset/search.train.json.part1 >preprocess_log.txt 2>&1 &
+
 """
 
 import sys
@@ -23,7 +30,11 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 import json
 from collections import Counter
+import datetime
+import logging
 
+start_time = ''
+end_time = ''
 
 def precision_recall_f1(prediction, ground_truth):
     """
@@ -211,7 +222,22 @@ def find_fake_answer(sample):
 
 
 if __name__ == '__main__':
-    for line in sys.stdin:
+    logger = logging.getLogger('preprocess')
+    print 'Start at :' + str(datetime.datetime.now())
+    f = open(sys.argv[1])
+    of = open(sys.argv[2],'w')
+    of.truncate()
+    line = f.readline()
+    n = 0
+    while line:
+        if n % 100 == 0:
+            print 'line ' + str(n)
         sample = json.loads(line)
         find_fake_answer(sample)
-        print(json.dumps(sample, encoding='utf8', ensure_ascii=False))
+        of.write(str(json.dumps(sample, encoding='utf8', ensure_ascii=False))+'\n')
+        of.flush()
+        line = f.readline()
+        n = n + 1
+    f.close()
+    of.close()
+    print 'End at :' + str(datetime.datetime.now())

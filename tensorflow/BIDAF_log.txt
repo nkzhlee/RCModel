@@ -1,0 +1,182 @@
+dyld: warning, LC_RPATH $ORIGIN/../../_solib_darwin_x86_64/_U_S_Stensorflow_Spython_C_Upywrap_Utensorflow_Uinternal.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Slayers_Cpython_Sops_S_Usparse_Ufeature_Ucross_Uop.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/layers/python/ops/_sparse_feature_cross_op.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sinput_Upipeline_Cpython_Sops_S_Uinput_Upipeline_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/input_pipeline/python/ops/_input_pipeline_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Srnn_Cpython_Sops_S_Ugru_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/rnn/python/ops/_gru_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Srnn_Cpython_Sops_S_Ulstm_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/rnn/python/ops/_lstm_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sfactorization_Cpython_Sops_S_Uclustering_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/factorization/python/ops/_clustering_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sfactorization_Cpython_Sops_S_Ufactorization_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/factorization/python/ops/_factorization_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stpu_Cpython_Sops_S_Utpu_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tpu/python/ops/_tpu_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Scudnn_Urnn_Cpython_Sops_S_Ucudnn_Urnn_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/cudnn_rnn/python/ops/_cudnn_rnn_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Simage_Cpython_Sops_S_Udistort_Uimage_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/image/python/ops/_distort_image_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Simage_Cpython_Sops_S_Uimage_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/image/python/ops/_image_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Simage_Cpython_Sops_S_Usingle_Uimage_Urandom_Udot_Ustereograms.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/image/python/ops/_single_image_random_dot_stereograms.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Smemory_Ustats_Cpython_Sops_S_Umemory_Ustats_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/memory_stats/python/ops/_memory_stats_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Snccl_Cpython_Sops_S_Unccl_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/nccl/python/ops/_nccl_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Speriodic_Uresample_Cpython_Sops_S_Uperiodic_Uresample_Uop.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/periodic_resample/python/ops/_periodic_resample_op.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sresampler_Cpython_Sops_S_Uresampler_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/resampler/python/ops/_resampler_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sseq2seq_Cpython_Sops_S_Ubeam_Usearch_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/seq2seq/python/ops/_beam_search_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Utensor_Uforest_Uops.so___Utensorflow_Scontrib_Stensor_Uforest in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_tensor_forest_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Utensor_Uforest_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_tensor_forest_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Umodel_Uops.so___Utensorflow_Scontrib_Stensor_Uforest in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_model_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Umodel_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_model_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Ustats_Uops.so___Utensorflow_Scontrib_Stensor_Uforest in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_stats_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Ustats_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_stats_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sdata_C_Uprefetching_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/data/python/ops/../../_prefetching_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Slite_Stoco_Spython_C_Utensorflow_Uwrap_Utoco.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/lite/toco/python/_tensorflow_wrap_toco.so being ignored in restricted program because it is a relative path
+2018-02-06 12:49:50,134 - brc - INFO - Running with args : Namespace(algo='BIDAF', batch_size=32, brc_dir='../data/baidu', dev_files=['../data/demo/devset/search.dev.json'], dropout_keep_prob=1, embed_size=300, epochs=10, evaluate=False, gpu='0', hidden_size=150, learning_rate=0.001, log_path=None, max_a_len=200, max_p_len=500, max_p_num=5, max_q_len=60, model_dir='../data/models/', optim='adam', predict=False, prepare=False, result_dir='../data/results/', summary_dir='../data/summary/', test_files=['../data/demo/test/search.test.json'], train=True, train_files=['../data/demo/trainset/search.train.json'], vocab_dir='../data/vocab/', weight_decay=0)
+2018-02-06 12:49:50,134 - brc - INFO - Load data_set and vocab...
+2018-02-06 12:49:50,840 - brc - INFO - Train set size: 95 questions.
+2018-02-06 12:49:51,131 - brc - INFO - Dev set size: 100 questions.
+2018-02-06 12:49:51,131 - brc - INFO - Converting text into ids...
+2018-02-06 12:49:51,196 - brc - INFO - Initialize the model...
+2018-02-06 12:50:00,634 - brc - INFO - Time to build graph: 9.43188405037 s
+2018-02-06 12:50:08,393 - brc - INFO - There are 4995603 parameters in the model
+2018-02-06 12:50:09,711 - brc - INFO - Training the model...
+2018-02-06 12:50:09,711 - brc - INFO - Training the model for epoch 1
+hahahhahah91174
+hahahhahah91174
+hahahhahah19
+hahahhahah19
+hahahhahah19
+hahahhahah19
+hahahhahah19
+hahahhahah91178
+hahahhahah91178
+hahahhahah91178
+hahahhahah91178
+hahahhahah91178
+hahahhahah17
+hahahhahah17
+hahahhahah17
+hahahhahah17
+hahahhahah17
+hahahhahah36
+hahahhahah36
+hahahhahah36
+hahahhahah36
+hahahhahah36
+hahahhahah91177
+hahahhahah91177
+hahahhahah91177
+hahahhahah91177
+hahahhahah91177
+hahahhahah91166
+hahahhahah91166
+hahahhahah91166
+hahahhahah91166
+hahahhahah91166
+hahahhahah5
+hahahhahah5
+hahahhahah5
+hahahhahah5
+hahahhahah5
+hahahhahah3
+hahahhahah3
+hahahhahah3
+hahahhahah3
+hahahhahah3
+hahahhahah91186
+hahahhahah91186
+hahahhahah91186
+hahahhahah91186
+hahahhahah91186
+hahahhahah27
+hahahhahah27
+hahahhahah27
+hahahhahah21
+hahahhahah21
+hahahhahah21
+hahahhahah21
+hahahhahah12
+hahahhahah12
+hahahhahah12
+hahahhahah12
+hahahhahah12
+hahahhahah22
+hahahhahah22
+hahahhahah22
+hahahhahah22
+hahahhahah22
+hahahhahah91196
+hahahhahah91196
+hahahhahah91196
+hahahhahah11
+hahahhahah11
+hahahhahah11
+hahahhahah11
+hahahhahah11
+hahahhahah91170
+hahahhahah91170
+hahahhahah91170
+hahahhahah91170
+hahahhahah91200
+hahahhahah91200
+hahahhahah91200
+hahahhahah91200
+hahahhahah91200
+hahahhahah41
+hahahhahah41
+hahahhahah41
+hahahhahah41
+hahahhahah41
+hahahhahah16
+hahahhahah16
+hahahhahah16
+hahahhahah91185
+hahahhahah91185
+hahahhahah91185
+hahahhahah91185
+hahahhahah91185
+hahahhahah91191
+hahahhahah91191
+hahahhahah91191
+hahahhahah91191
+hahahhahah91191
+hahahhahah15
+hahahhahah15
+hahahhahah15
+hahahhahah15
+hahahhahah15
+hahahhahah91184
+hahahhahah91184
+hahahhahah91184
+hahahhahah91184
+hahahhahah91184
+hahahhahah91195
+hahahhahah91195
+hahahhahah91195
+hahahhahah91195
+hahahhahah91195
+hahahhahah91199
+hahahhahah91199
+hahahhahah91199
+hahahhahah91199
+hahahhahah91199
+hahahhahah91182
+hahahhahah91182
+hahahhahah91182
+hahahhahah91192
+hahahhahah91192
+hahahhahah91192
+hahahhahah91192
+hahahhahah91192
+hahahhahah31
+hahahhahah31
+hahahhahah31
+hahahhahah31
+hahahhahah31
+hahahhahah13
+hahahhahah13
+hahahhahah13
+hahahhahah13
+hahahhahah13
+hahahhahah20
+hahahhahah20
+hahahhahah20
+hahahhahah20
+hahahhahah20
+hahahhahah91163
+hahahhahah91163
+hahahhahah91163
+hahahhahah91163
+hahahhahah91163

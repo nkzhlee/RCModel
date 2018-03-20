@@ -16,12 +16,41 @@
 # ==============================================================================
 """
 This module prepares and runs the whole system.
+
+python run.py --prepare --train_files ../data/preprocessed/trainset/search/search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/seg/search/test/search.test.json 
+
+python run.py --prepare --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json
+
+nohup python -u run.py --train --algo BIDAF --epochs 300  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >BIDAF_log.txt 2>&1 &
+
+nohup python -u run.py --train --algo MLSTM --epochs 3000  --train_files ../data/preprocessed/trainset/search/search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/seg/search/test/search.test.json >MLSTM_log.txt 2>&1 &
+
+########test MCTS ##
+
+python run.py --prepare --train_files ../data/preprocessed/trainset/test_search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/seg/search.test.json
+
+nohup python -u run.py --train --algo MCST --epochs 1  --train_files ../data/preprocessed/trainset/search/test.search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/seg/search/test/search.test.json >test_log.txt 2>&1 &
+python -u run.py --train --algo MCST --epochs 2  --hidden_size 150 --batch_size 1 --train_files ../data/demo/trainset/test --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json
+python -u run.py --prepare --train_files ../data/demo/trainset/test --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json
+
+
+shiyan 1
+python -u run.py --prepare --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json
+
+nohup python -u run.py --train --algo MCST --epochs 20  --hidden_size 150 --batch_size 1 --gpu 0 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json >exp_20_3000_10_log.txt 2>&1 &
+
+nohup python -u run.py --train --algo MCST --epochs 30  --hidden_size 150 --batch_size 1 --gpu 1 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json >exp_30_3000_20_log.txt 2>&1 &
+
+nohup python -u run.py --train --algo MCST --epochs 50  --hidden_size 150 --batch_size 1 --gpu 2 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json >exp_50_500_10_log.txt 2>&1 &
+
+nohup python -u run.py --train --algo MCST --epochs 20  --hidden_size 150 --batch_size 1 --gpu 3 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json >exp_20_100_20_log.txt 2>&1 &
 """
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 sys.path.append('..')
+sys.setrecursionlimit(100000)
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import pickle
@@ -30,6 +59,7 @@ import logging
 from dataset import BRCDataset
 from vocab import Vocab
 from rc_model import RCModel
+from mcst_model import MCSTmodel
 
 
 def parse_args():
@@ -49,7 +79,7 @@ def parse_args():
                         help='specify gpu device')
 
     train_settings = parser.add_argument_group('train settings')
-    train_settings.add_argument('--optim', default='adam',
+    train_settings.add_argument('--optim', default='sgd',
                                 help='optimizer type')
     train_settings.add_argument('--learning_rate', type=float, default=0.001,
                                 help='learning rate')
@@ -63,7 +93,7 @@ def parse_args():
                                 help='train epochs')
 
     model_settings = parser.add_argument_group('model settings')
-    model_settings.add_argument('--algo', choices=['BIDAF', 'MLSTM'], default='BIDAF',
+    model_settings.add_argument('--algo', choices=['BIDAF', 'MLSTM','MCST'], default='BIDAF',
                                 help='choose the algorithm to use')
     model_settings.add_argument('--embed_size', type=int, default=300,
                                 help='size of the embeddings')
@@ -71,7 +101,7 @@ def parse_args():
                                 help='size of LSTM hidden units')
     model_settings.add_argument('--max_p_num', type=int, default=5,
                                 help='max passage num in one sample')
-    model_settings.add_argument('--max_p_len', type=int, default=500,
+    model_settings.add_argument('--max_p_len', type=int, default=1500,
                                 help='max length of passage')
     model_settings.add_argument('--max_q_len', type=int, default=60,
                                 help='max length of question')
@@ -119,7 +149,10 @@ def prepare(args):
     logger.info('Building vocabulary...')
     brc_data = BRCDataset(args.max_p_num, args.max_p_len, args.max_q_len,
                           args.train_files, args.dev_files, args.test_files)
+    logger.info('Building dateset success')
     vocab = Vocab(lower=True)
+
+
     for word in brc_data.word_iter('train'):
         vocab.add(word)
 
@@ -138,7 +171,6 @@ def prepare(args):
 
     logger.info('Done with preparing!')
 
-
 def train(args):
     """
     trains the reading comprehension model
@@ -152,11 +184,19 @@ def train(args):
     logger.info('Converting text into ids...')
     brc_data.convert_to_ids(vocab)
     logger.info('Initialize the model...')
-    rc_model = RCModel(vocab, args)
-    logger.info('Training the model...')
-    rc_model.train(brc_data, args.epochs, args.batch_size, save_dir=args.model_dir,
-                   save_prefix=args.algo,
-                   dropout_keep_prob=args.dropout_keep_prob)
+    if args.algo == 'MCST':
+        logger.info('Use MCST Model to train...')
+        rc_model = MCSTmodel(vocab, args)
+        logger.info('Training MCST model...')
+        rc_model.train(brc_data, args.epochs, args.batch_size, save_dir=args.model_dir,
+                       save_prefix=args.algo,
+                       dropout_keep_prob=args.dropout_keep_prob)
+    else:
+        rc_model = RCModel(vocab, args)
+        logger.info('Training the model...')
+        rc_model.train(brc_data, args.epochs, args.batch_size, save_dir=args.model_dir,
+                    save_prefix=args.algo,
+                    dropout_keep_prob=args.dropout_keep_prob)
     logger.info('Done with model training!')
 
 

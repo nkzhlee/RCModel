@@ -309,6 +309,7 @@ class RCModel(object):
             for sample, start_prob, end_prob in zip(batch['raw_data'], start_probs, end_probs):
 
                 best_answer = self.find_best_answer(sample, start_prob, end_prob, padded_p_len)
+                #print best_answer
                 if save_full_info:
                     sample['pred_answers'] = [best_answer]
                     pred_answers.append(sample)
@@ -324,7 +325,10 @@ class RCModel(object):
                                          'answers': sample['answers'],
                                          'entity_answers': [[]],
                                          'yesno_answers': []})
-
+        print 'ref_answers: '
+        print ref_answers
+        print 'pred_answers: '
+        print pred_answers
         if result_dir is not None and result_prefix is not None:
             result_file = os.path.join(result_dir, result_prefix + '.json')
             with open(result_file, 'w') as fout:
@@ -343,6 +347,11 @@ class RCModel(object):
                 if len(ref['answers']) > 0:
                     pred_dict[question_id] = normalize(pred['answers'])
                     ref_dict[question_id] = normalize(ref['answers'])
+                    print '========compare======='
+                    print pred_dict[question_id]
+                    print '----------------------'
+                    print ref_dict[question_id]
+
             bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
         else:
             bleu_rouge = None

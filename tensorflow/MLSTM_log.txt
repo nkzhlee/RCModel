@@ -1,0 +1,503 @@
+nohup: 忽略输入
+2018-01-25 00:10:25,321 - brc - INFO - Running with args : Namespace(algo='MLSTM', batch_size=32, brc_dir='../data/baidu', dev_files=['../data/preprocessed/devset/search.dev.json'], dropout_keep_prob=1, embed_size=300, epochs=3000, evaluate=False, gpu='0', hidden_size=150, learning_rate=0.001, log_path=None, max_a_len=200, max_p_len=500, max_p_num=5, max_q_len=60, model_dir='../data/models/', optim='adam', predict=False, prepare=False, result_dir='../data/results/', summary_dir='../data/summary/', test_files=['../data/seg/search/test/search.test.json'], train=True, train_files=['../data/preprocessed/trainset/search/search.train.json'], vocab_dir='../data/vocab/', weight_decay=0)
+2018-01-25 00:10:25,321 - brc - INFO - Load data_set and vocab...
+2018-01-25 00:13:08,746 - brc - INFO - Train set size: 86800 questions.
+2018-01-25 00:13:31,826 - brc - INFO - Dev set size: 5000 questions.
+2018-01-25 00:13:31,826 - brc - INFO - Converting text into ids...
+2018-01-25 00:14:09,297 - brc - INFO - Initialize the model...
+2018-01-25 00:14:15,730 - brc - INFO - Time to build graph: 6.43015193939 s
+2018-01-25 00:14:28,702 - brc - INFO - There are 123229805 parameters in the model
+2018-01-25 00:14:31,664 - brc - INFO - Training the model...
+2018-01-25 00:14:31,664 - brc - INFO - Training the model for epoch 1
+2018-01-25 00:38:12,371 - brc - INFO - Average loss from batch 1 to 50 is 10.392585659
+2018-01-25 01:01:45,589 - brc - INFO - Average loss from batch 51 to 100 is 9.26052476883
+2018-01-25 01:25:41,564 - brc - INFO - Average loss from batch 101 to 150 is 8.78989037514
+2018-01-25 01:49:42,700 - brc - INFO - Average loss from batch 151 to 200 is 8.47852697372
+2018-01-25 02:13:59,511 - brc - INFO - Average loss from batch 201 to 250 is 8.15893703461
+2018-01-25 02:44:18,150 - brc - INFO - Average loss from batch 251 to 300 is 8.25251963615
+2018-01-25 03:15:02,888 - brc - INFO - Average loss from batch 301 to 350 is 8.06409471512
+2018-01-25 03:46:05,521 - brc - INFO - Average loss from batch 351 to 400 is 8.07726564407
+2018-01-25 04:15:38,620 - brc - INFO - Average loss from batch 401 to 450 is 8.11265277863
+2018-01-25 04:35:39,149 - brc - INFO - Average loss from batch 451 to 500 is 7.82681957245
+2018-01-25 04:53:08,591 - brc - INFO - Average loss from batch 501 to 550 is 7.96850185394
+2018-01-25 05:08:27,364 - brc - INFO - Average loss from batch 551 to 600 is 8.05251911163
+2018-01-25 05:22:15,842 - brc - INFO - Average loss from batch 601 to 650 is 7.91160863876
+2018-01-25 05:35:47,877 - brc - INFO - Average loss from batch 651 to 700 is 7.80044187546
+2018-01-25 05:49:15,973 - brc - INFO - Average loss from batch 701 to 750 is 7.91138835907
+2018-01-25 06:02:49,711 - brc - INFO - Average loss from batch 751 to 800 is 7.84388204575
+2018-01-25 06:16:22,748 - brc - INFO - Average loss from batch 801 to 850 is 7.93759889603
+2018-01-25 06:29:43,786 - brc - INFO - Average loss from batch 851 to 900 is 7.69310843468
+2018-01-25 06:43:09,178 - brc - INFO - Average loss from batch 901 to 950 is 7.63473020554
+2018-01-25 06:56:43,502 - brc - INFO - Average loss from batch 951 to 1000 is 7.82999796867
+2018-01-25 07:10:18,098 - brc - INFO - Average loss from batch 1001 to 1050 is 7.54417047501
+2018-01-25 07:23:45,319 - brc - INFO - Average loss from batch 1051 to 1100 is 8.00976593971
+2018-01-25 07:37:19,472 - brc - INFO - Average loss from batch 1101 to 1150 is 7.76979213715
+2018-01-25 07:50:59,401 - brc - INFO - Average loss from batch 1151 to 1200 is 7.61467762947
+2018-01-25 08:04:29,794 - brc - INFO - Average loss from batch 1201 to 1250 is 7.7501149559
+2018-01-25 08:17:55,506 - brc - INFO - Average loss from batch 1251 to 1300 is 7.69410866737
+2018-01-25 08:31:37,489 - brc - INFO - Average loss from batch 1301 to 1350 is 7.76215781212
+2018-01-25 08:44:56,032 - brc - INFO - Average loss from batch 1351 to 1400 is 7.62458926201
+2018-01-25 08:58:23,814 - brc - INFO - Average loss from batch 1401 to 1450 is 7.73969760895
+2018-01-25 09:11:51,428 - brc - INFO - Average loss from batch 1451 to 1500 is 7.87391822815
+2018-01-25 09:25:27,045 - brc - INFO - Average loss from batch 1501 to 1550 is 7.55900093079
+2018-01-25 09:38:54,570 - brc - INFO - Average loss from batch 1551 to 1600 is 7.61800292969
+2018-01-25 09:52:22,484 - brc - INFO - Average loss from batch 1601 to 1650 is 7.66014221191
+2018-01-25 10:05:44,045 - brc - INFO - Average loss from batch 1651 to 1700 is 7.56711047173
+2018-01-25 10:19:20,822 - brc - INFO - Average loss from batch 1701 to 1750 is 7.55439711571
+2018-01-25 10:33:00,697 - brc - INFO - Average loss from batch 1751 to 1800 is 7.57270053864
+2018-01-25 10:46:34,903 - brc - INFO - Average loss from batch 1801 to 1850 is 7.50394329071
+2018-01-25 10:59:51,616 - brc - INFO - Average loss from batch 1851 to 1900 is 7.53715826035
+2018-01-25 11:13:27,323 - brc - INFO - Average loss from batch 1901 to 1950 is 7.54709124565
+2018-01-25 11:26:50,064 - brc - INFO - Average loss from batch 1951 to 2000 is 7.66207573891
+2018-01-25 11:40:15,663 - brc - INFO - Average loss from batch 2001 to 2050 is 7.4666771698
+2018-01-25 11:53:46,403 - brc - INFO - Average loss from batch 2051 to 2100 is 7.39581521034
+2018-01-25 12:07:36,088 - brc - INFO - Average loss from batch 2101 to 2150 is 7.47738195419
+2018-01-25 12:21:11,726 - brc - INFO - Average loss from batch 2151 to 2200 is 7.40819961548
+2018-01-25 12:34:33,705 - brc - INFO - Average loss from batch 2201 to 2250 is 7.5210463047
+2018-01-25 12:47:52,134 - brc - INFO - Average loss from batch 2251 to 2300 is 7.43435354233
+2018-01-25 13:01:17,523 - brc - INFO - Average loss from batch 2301 to 2350 is 7.45982064247
+2018-01-25 13:14:51,026 - brc - INFO - Average loss from batch 2351 to 2400 is 7.28135848045
+2018-01-25 13:28:17,610 - brc - INFO - Average loss from batch 2401 to 2450 is 7.55912023544
+2018-01-25 13:41:34,851 - brc - INFO - Average loss from batch 2451 to 2500 is 7.58997904778
+2018-01-25 13:57:02,779 - brc - INFO - Average loss from batch 2501 to 2550 is 7.39649870872
+2018-01-25 14:26:07,104 - brc - INFO - Average loss from batch 2551 to 2600 is 7.42530047417
+2018-01-25 14:59:05,125 - brc - INFO - Average loss from batch 2601 to 2650 is 7.43791184425
+2018-01-25 15:32:33,579 - brc - INFO - Average loss from batch 2651 to 2700 is 7.43384218216
+2018-01-25 15:41:18,807 - brc - INFO - Average train loss for epoch 1 is 7.8029458184
+2018-01-25 15:41:18,808 - brc - INFO - Evaluating the model after epoch 1
+{'reflen': 458030, 'guess': [368230, 363307, 358385, 353466], 'testlen': 368230, 'correct': [174868, 110932, 85202, 72272]}
+ratio: 0.803942973168
+2018-01-25 16:25:18,124 - brc - INFO - Dev eval loss 14.5230426514
+2018-01-25 16:25:18,125 - brc - INFO - Dev eval result: {'Bleu-4': 0.2270455848705915, 'Rouge-L': 0.2942757842264458, 'Bleu-1': 0.372117482963416, 'Bleu-3': 0.2550235608796394, 'Bleu-2': 0.29838433955264354}
+2018-01-25 16:25:21,816 - brc - INFO - Model saved in ../data/models/, with prefix MLSTM.
+2018-01-25 16:25:21,816 - brc - INFO - Training the model for epoch 2
+2018-01-25 16:58:05,270 - brc - INFO - Average loss from batch 1 to 50 is 7.15702414513
+2018-01-25 17:31:44,013 - brc - INFO - Average loss from batch 51 to 100 is 7.05820462227
+2018-01-25 18:05:38,446 - brc - INFO - Average loss from batch 101 to 150 is 7.0619876194
+2018-01-25 18:39:04,942 - brc - INFO - Average loss from batch 151 to 200 is 7.09008889198
+2018-01-25 19:12:02,050 - brc - INFO - Average loss from batch 201 to 250 is 6.97329753876
+2018-01-25 19:46:10,490 - brc - INFO - Average loss from batch 251 to 300 is 7.01529239655
+2018-01-25 20:19:51,919 - brc - INFO - Average loss from batch 301 to 350 is 6.96243479729
+2018-01-25 20:53:16,186 - brc - INFO - Average loss from batch 351 to 400 is 7.08192255974
+2018-01-25 21:25:56,189 - brc - INFO - Average loss from batch 401 to 450 is 7.09739192009
+2018-01-25 21:58:41,134 - brc - INFO - Average loss from batch 451 to 500 is 7.00260919571
+2018-01-25 22:31:49,783 - brc - INFO - Average loss from batch 501 to 550 is 6.99639632225
+2018-01-25 23:03:37,452 - brc - INFO - Average loss from batch 551 to 600 is 7.08900729179
+2018-01-25 23:33:34,826 - brc - INFO - Average loss from batch 601 to 650 is 6.99449181557
+2018-01-26 00:00:08,653 - brc - INFO - Average loss from batch 651 to 700 is 6.9468092823
+2018-01-26 00:25:10,660 - brc - INFO - Average loss from batch 701 to 750 is 6.92363772392
+2018-01-26 00:48:44,684 - brc - INFO - Average loss from batch 751 to 800 is 7.12701050758
+2018-01-26 01:11:32,354 - brc - INFO - Average loss from batch 801 to 850 is 7.15471570969
+2018-01-26 01:34:08,578 - brc - INFO - Average loss from batch 851 to 900 is 6.86266723633
+2018-01-26 01:56:57,811 - brc - INFO - Average loss from batch 901 to 950 is 6.82706686974
+2018-01-26 02:19:32,664 - brc - INFO - Average loss from batch 951 to 1000 is 6.93439330101
+2018-01-26 02:42:11,114 - brc - INFO - Average loss from batch 1001 to 1050 is 6.95652794838
+2018-01-26 03:04:40,734 - brc - INFO - Average loss from batch 1051 to 1100 is 6.85962636948
+2018-01-26 03:27:13,631 - brc - INFO - Average loss from batch 1101 to 1150 is 6.93459939957
+2018-01-26 03:49:49,916 - brc - INFO - Average loss from batch 1151 to 1200 is 6.95278401375
+2018-01-26 04:12:48,978 - brc - INFO - Average loss from batch 1201 to 1250 is 6.92540445328
+2018-01-26 04:34:35,514 - brc - INFO - Average loss from batch 1251 to 1300 is 7.02642336845
+2018-01-26 04:55:57,998 - brc - INFO - Average loss from batch 1301 to 1350 is 7.03973381996
+2018-01-26 05:19:44,689 - brc - INFO - Average loss from batch 1351 to 1400 is 6.9043294239
+2018-01-26 05:43:21,712 - brc - INFO - Average loss from batch 1401 to 1450 is 6.91121163368
+2018-01-26 06:07:35,000 - brc - INFO - Average loss from batch 1451 to 1500 is 6.87124125481
+2018-01-26 06:31:26,767 - brc - INFO - Average loss from batch 1501 to 1550 is 6.95869702339
+2018-01-26 06:55:27,829 - brc - INFO - Average loss from batch 1551 to 1600 is 6.93493955612
+2018-01-26 07:19:36,535 - brc - INFO - Average loss from batch 1601 to 1650 is 6.97197559357
+2018-01-26 07:43:55,483 - brc - INFO - Average loss from batch 1651 to 1700 is 6.81983283043
+2018-01-26 08:08:00,139 - brc - INFO - Average loss from batch 1701 to 1750 is 6.93489128113
+2018-01-26 08:31:22,306 - brc - INFO - Average loss from batch 1751 to 1800 is 6.85129318237
+2018-01-26 08:55:12,255 - brc - INFO - Average loss from batch 1801 to 1850 is 6.90501835823
+2018-01-26 09:19:03,857 - brc - INFO - Average loss from batch 1851 to 1900 is 6.90444278717
+2018-01-26 09:41:57,017 - brc - INFO - Average loss from batch 1901 to 1950 is 6.82760157585
+2018-01-26 10:04:32,953 - brc - INFO - Average loss from batch 1951 to 2000 is 6.92103674889
+2018-01-26 10:27:32,280 - brc - INFO - Average loss from batch 2001 to 2050 is 6.88446404457
+2018-01-26 10:50:06,837 - brc - INFO - Average loss from batch 2051 to 2100 is 6.83219975471
+2018-01-26 11:12:45,974 - brc - INFO - Average loss from batch 2101 to 2150 is 6.71768259048
+2018-01-26 11:36:02,445 - brc - INFO - Average loss from batch 2151 to 2200 is 6.98840195656
+2018-01-26 11:59:21,340 - brc - INFO - Average loss from batch 2201 to 2250 is 6.97304788589
+2018-01-26 12:22:41,307 - brc - INFO - Average loss from batch 2251 to 2300 is 6.98977848053
+2018-01-26 12:45:40,092 - brc - INFO - Average loss from batch 2301 to 2350 is 6.81997653008
+2018-01-26 13:08:38,503 - brc - INFO - Average loss from batch 2351 to 2400 is 6.96443340302
+2018-01-26 13:31:43,978 - brc - INFO - Average loss from batch 2401 to 2450 is 6.84926174164
+2018-01-26 13:54:56,496 - brc - INFO - Average loss from batch 2451 to 2500 is 6.8971914196
+2018-01-26 14:19:47,463 - brc - INFO - Average loss from batch 2501 to 2550 is 6.8215605545
+2018-01-26 14:54:10,376 - brc - INFO - Average loss from batch 2551 to 2600 is 6.81713679314
+2018-01-26 15:28:18,356 - brc - INFO - Average loss from batch 2601 to 2650 is 6.9537029171
+2018-01-26 16:01:47,594 - brc - INFO - Average loss from batch 2651 to 2700 is 6.85437644958
+2018-01-26 16:10:28,826 - brc - INFO - Average train loss for epoch 2 is 6.9469193666
+2018-01-26 16:10:28,826 - brc - INFO - Evaluating the model after epoch 2
+{'reflen': 450832, 'guess': [325426, 320503, 315587, 310688], 'testlen': 325426, 'correct': [165090, 106608, 82334, 69807]}
+ratio: 0.721834297477
+2018-01-26 16:55:06,673 - brc - INFO - Dev eval loss 14.6821669373
+2018-01-26 16:55:06,673 - brc - INFO - Dev eval result: {'Bleu-4': 0.21451402996331098, 'Rouge-L': 0.29416928023878447, 'Bleu-1': 0.34507143979261934, 'Bleu-3': 0.24017950124118262, 'Bleu-2': 0.2794175013134792}
+2018-01-26 16:55:06,674 - brc - INFO - Training the model for epoch 3
+2018-01-26 17:27:29,282 - brc - INFO - Average loss from batch 1 to 50 is 6.00732839584
+2018-01-26 17:59:39,217 - brc - INFO - Average loss from batch 51 to 100 is 6.02728735924
+2018-01-26 18:32:34,342 - brc - INFO - Average loss from batch 101 to 150 is 6.04634395599
+2018-01-26 19:05:29,108 - brc - INFO - Average loss from batch 151 to 200 is 6.02611282349
+2018-01-26 19:38:41,704 - brc - INFO - Average loss from batch 201 to 250 is 5.9618549633
+2018-01-26 20:11:32,158 - brc - INFO - Average loss from batch 251 to 300 is 5.79332413673
+2018-01-26 20:45:08,754 - brc - INFO - Average loss from batch 301 to 350 is 5.92866849899
+2018-01-26 21:18:29,689 - brc - INFO - Average loss from batch 351 to 400 is 5.87229492187
+2018-01-26 21:51:19,754 - brc - INFO - Average loss from batch 401 to 450 is 6.00240927696
+2018-01-26 22:24:29,918 - brc - INFO - Average loss from batch 451 to 500 is 5.92631604195
+2018-01-26 22:57:45,147 - brc - INFO - Average loss from batch 501 to 550 is 6.16608797073
+2018-01-26 23:30:29,510 - brc - INFO - Average loss from batch 551 to 600 is 6.02309116364
+2018-01-27 00:00:27,842 - brc - INFO - Average loss from batch 601 to 650 is 5.94221432686
+2018-01-27 00:28:14,710 - brc - INFO - Average loss from batch 651 to 700 is 5.89339853287
+2018-01-27 00:54:06,716 - brc - INFO - Average loss from batch 701 to 750 is 6.06719214439
+2018-01-27 01:18:48,304 - brc - INFO - Average loss from batch 751 to 800 is 5.94531471252
+2018-01-27 01:43:13,290 - brc - INFO - Average loss from batch 801 to 850 is 6.10466323853
+2018-01-27 02:06:24,248 - brc - INFO - Average loss from batch 851 to 900 is 6.12888551712
+2018-01-27 02:29:33,125 - brc - INFO - Average loss from batch 901 to 950 is 5.98930143356
+2018-01-27 02:52:51,317 - brc - INFO - Average loss from batch 951 to 1000 is 5.97354875565
+2018-01-27 03:16:20,734 - brc - INFO - Average loss from batch 1001 to 1050 is 6.01669816017
+2018-01-27 03:38:59,628 - brc - INFO - Average loss from batch 1051 to 1100 is 6.02778158188
+2018-01-27 04:02:13,425 - brc - INFO - Average loss from batch 1101 to 1150 is 5.94368459702
+2018-01-27 04:25:04,429 - brc - INFO - Average loss from batch 1151 to 1200 is 6.02907538414
+2018-01-27 04:48:07,375 - brc - INFO - Average loss from batch 1201 to 1250 is 5.95540075302
+2018-01-27 05:11:08,465 - brc - INFO - Average loss from batch 1251 to 1300 is 6.03643023491
+2018-01-27 05:34:11,545 - brc - INFO - Average loss from batch 1301 to 1350 is 5.90441953659
+2018-01-27 05:56:46,339 - brc - INFO - Average loss from batch 1351 to 1400 is 5.99770233154
+2018-01-27 06:19:42,493 - brc - INFO - Average loss from batch 1401 to 1450 is 6.00839735031
+2018-01-27 06:42:29,109 - brc - INFO - Average loss from batch 1451 to 1500 is 5.95966100693
+2018-01-27 07:04:08,648 - brc - INFO - Average loss from batch 1501 to 1550 is 6.10746635437
+2018-01-27 07:26:13,385 - brc - INFO - Average loss from batch 1551 to 1600 is 5.9020153904
+2018-01-27 07:48:56,695 - brc - INFO - Average loss from batch 1601 to 1650 is 6.03087796211
+2018-01-27 08:11:47,256 - brc - INFO - Average loss from batch 1651 to 1700 is 6.09674807549
+2018-01-27 08:34:39,847 - brc - INFO - Average loss from batch 1701 to 1750 is 5.98983429909
+2018-01-27 08:57:13,877 - brc - INFO - Average loss from batch 1751 to 1800 is 5.89749108315
+2018-01-27 09:20:07,164 - brc - INFO - Average loss from batch 1801 to 1850 is 5.9725296402
+2018-01-27 09:42:59,009 - brc - INFO - Average loss from batch 1851 to 1900 is 6.04381883621
+2018-01-27 10:05:46,874 - brc - INFO - Average loss from batch 1901 to 1950 is 6.01027630806
+2018-01-27 10:28:54,747 - brc - INFO - Average loss from batch 1951 to 2000 is 6.06732979774
+2018-01-27 10:52:04,003 - brc - INFO - Average loss from batch 2001 to 2050 is 5.9380209446
+2018-01-27 11:14:45,748 - brc - INFO - Average loss from batch 2051 to 2100 is 6.01094280243
+2018-01-27 11:37:40,476 - brc - INFO - Average loss from batch 2101 to 2150 is 5.90445780754
+2018-01-27 12:00:20,821 - brc - INFO - Average loss from batch 2151 to 2200 is 5.93819746971
+2018-01-27 12:23:13,747 - brc - INFO - Average loss from batch 2201 to 2250 is 5.96468375206
+2018-01-27 12:45:50,583 - brc - INFO - Average loss from batch 2251 to 2300 is 6.03140870094
+2018-01-27 13:08:42,664 - brc - INFO - Average loss from batch 2301 to 2350 is 6.13953496933
+2018-01-27 13:31:59,925 - brc - INFO - Average loss from batch 2351 to 2400 is 5.97177522659
+2018-01-27 13:54:54,012 - brc - INFO - Average loss from batch 2401 to 2450 is 6.1294492054
+2018-01-27 14:18:07,864 - brc - INFO - Average loss from batch 2451 to 2500 is 5.85861631393
+2018-01-27 14:40:51,489 - brc - INFO - Average loss from batch 2501 to 2550 is 5.99061877251
+2018-01-27 15:03:34,773 - brc - INFO - Average loss from batch 2551 to 2600 is 6.00524645805
+2018-01-27 15:26:08,139 - brc - INFO - Average loss from batch 2601 to 2650 is 6.01023399353
+2018-01-27 15:48:40,893 - brc - INFO - Average loss from batch 2651 to 2700 is 6.09108994484
+2018-01-27 15:54:17,075 - brc - INFO - Average train loss for epoch 3 is 5.99663354003
+2018-01-27 15:54:17,076 - brc - INFO - Evaluating the model after epoch 3
+{'reflen': 457682, 'guess': [353605, 348682, 343783, 338897], 'testlen': 353605, 'correct': [172555, 111104, 85904, 73110]}
+ratio: 0.772599752667
+2018-01-27 16:23:53,434 - brc - INFO - Dev eval loss 15.7938425598
+2018-01-27 16:23:53,436 - brc - INFO - Dev eval result: {'Bleu-4': 0.22542932251945802, 'Rouge-L': 0.29422398317357984, 'Bleu-1': 0.36356554204643715, 'Bleu-3': 0.2523401362347259, 'Bleu-2': 0.2937840563036007}
+2018-01-27 16:23:53,436 - brc - INFO - Training the model for epoch 4
+2018-01-27 16:46:27,957 - brc - INFO - Average loss from batch 1 to 50 is 4.50331719875
+2018-01-27 17:09:22,735 - brc - INFO - Average loss from batch 51 to 100 is 4.67696924686
+2018-01-27 17:32:26,916 - brc - INFO - Average loss from batch 101 to 150 is 4.69885872841
+2018-01-27 17:55:23,149 - brc - INFO - Average loss from batch 151 to 200 is 4.56076666832
+2018-01-27 18:17:12,628 - brc - INFO - Average loss from batch 201 to 250 is 4.70224365711
+2018-01-27 18:38:54,621 - brc - INFO - Average loss from batch 251 to 300 is 4.80730894089
+2018-01-27 19:01:49,006 - brc - INFO - Average loss from batch 301 to 350 is 4.58179821491
+2018-01-27 19:24:41,821 - brc - INFO - Average loss from batch 351 to 400 is 4.67927948952
+2018-01-27 19:47:36,263 - brc - INFO - Average loss from batch 401 to 450 is 4.5944452095
+2018-01-27 20:10:27,639 - brc - INFO - Average loss from batch 451 to 500 is 4.6473157692
+2018-01-27 20:33:23,445 - brc - INFO - Average loss from batch 501 to 550 is 4.85009115696
+2018-01-27 20:56:45,459 - brc - INFO - Average loss from batch 551 to 600 is 4.672021451
+2018-01-27 21:21:01,947 - brc - INFO - Average loss from batch 601 to 650 is 4.81380842209
+2018-01-27 21:45:29,339 - brc - INFO - Average loss from batch 651 to 700 is 4.73394650936
+2018-01-27 22:09:16,941 - brc - INFO - Average loss from batch 701 to 750 is 4.56904690266
+2018-01-27 22:33:05,337 - brc - INFO - Average loss from batch 751 to 800 is 4.68928957462
+2018-01-27 22:57:14,375 - brc - INFO - Average loss from batch 801 to 850 is 4.73226183414
+2018-01-27 23:20:41,240 - brc - INFO - Average loss from batch 851 to 900 is 4.57709670544
+2018-01-27 23:44:09,405 - brc - INFO - Average loss from batch 901 to 950 is 4.91905167103
+2018-01-28 00:07:05,547 - brc - INFO - Average loss from batch 951 to 1000 is 4.74422114372
+2018-01-28 00:30:02,200 - brc - INFO - Average loss from batch 1001 to 1050 is 4.62412576199
+2018-01-28 00:53:09,294 - brc - INFO - Average loss from batch 1051 to 1100 is 4.88945960045
+2018-01-28 01:16:06,180 - brc - INFO - Average loss from batch 1101 to 1150 is 4.80597166538
+2018-01-28 01:39:12,609 - brc - INFO - Average loss from batch 1151 to 1200 is 4.75615940571
+2018-01-28 02:02:07,937 - brc - INFO - Average loss from batch 1201 to 1250 is 4.78962304115
+2018-01-28 02:25:00,285 - brc - INFO - Average loss from batch 1251 to 1300 is 4.67243392467
+2018-01-28 02:47:48,621 - brc - INFO - Average loss from batch 1301 to 1350 is 4.92379722118
+2018-01-28 03:10:49,646 - brc - INFO - Average loss from batch 1351 to 1400 is 4.85449208736
+2018-01-28 03:33:36,279 - brc - INFO - Average loss from batch 1401 to 1450 is 4.88605742455
+2018-01-28 03:56:15,507 - brc - INFO - Average loss from batch 1451 to 1500 is 4.7861362648
+2018-01-28 04:19:07,959 - brc - INFO - Average loss from batch 1501 to 1550 is 4.77383104324
+2018-01-28 04:41:55,836 - brc - INFO - Average loss from batch 1551 to 1600 is 4.9172649765
+2018-01-28 05:04:47,960 - brc - INFO - Average loss from batch 1601 to 1650 is 4.72759493828
+2018-01-28 05:27:41,706 - brc - INFO - Average loss from batch 1651 to 1700 is 4.80827111244
+2018-01-28 05:48:44,563 - brc - INFO - Average loss from batch 1701 to 1750 is 4.78421002865
+2018-01-28 06:11:29,816 - brc - INFO - Average loss from batch 1751 to 1800 is 5.04767117977
+2018-01-28 06:34:33,278 - brc - INFO - Average loss from batch 1801 to 1850 is 4.87865228653
+2018-01-28 06:57:18,290 - brc - INFO - Average loss from batch 1851 to 1900 is 4.82002977371
+2018-01-28 07:20:27,444 - brc - INFO - Average loss from batch 1901 to 1950 is 4.87651413441
+2018-01-28 07:43:03,752 - brc - INFO - Average loss from batch 1951 to 2000 is 4.98015534401
+2018-01-28 08:05:44,042 - brc - INFO - Average loss from batch 2001 to 2050 is 4.91109845638
+2018-01-28 08:29:08,857 - brc - INFO - Average loss from batch 2051 to 2100 is 4.93721329212
+2018-01-28 08:51:50,377 - brc - INFO - Average loss from batch 2101 to 2150 is 4.90379352093
+2018-01-28 09:14:54,885 - brc - INFO - Average loss from batch 2151 to 2200 is 5.06262435913
+2018-01-28 09:38:03,731 - brc - INFO - Average loss from batch 2201 to 2250 is 5.08434061527
+2018-01-28 10:01:34,357 - brc - INFO - Average loss from batch 2251 to 2300 is 5.06363556862
+2018-01-28 10:24:28,760 - brc - INFO - Average loss from batch 2301 to 2350 is 4.85770525932
+2018-01-28 10:47:20,713 - brc - INFO - Average loss from batch 2351 to 2400 is 5.11052025795
+2018-01-28 11:10:10,720 - brc - INFO - Average loss from batch 2401 to 2450 is 5.05264579296
+2018-01-28 11:32:28,541 - brc - INFO - Average loss from batch 2451 to 2500 is 4.93403560638
+2018-01-28 11:55:15,095 - brc - INFO - Average loss from batch 2501 to 2550 is 4.99745069981
+2018-01-28 12:18:23,403 - brc - INFO - Average loss from batch 2551 to 2600 is 5.02952857018
+2018-01-28 12:41:23,750 - brc - INFO - Average loss from batch 2601 to 2650 is 5.10505563736
+2018-01-28 13:04:40,611 - brc - INFO - Average loss from batch 2651 to 2700 is 4.94711188316
+2018-01-28 13:10:23,546 - brc - INFO - Average train loss for epoch 4 is 4.82213314944
+2018-01-28 13:10:23,549 - brc - INFO - Evaluating the model after epoch 4
+{'reflen': 465968, 'guess': [379579, 374656, 369778, 364920], 'testlen': 379579, 'correct': [180110, 115958, 90272, 77120]}
+ratio: 0.814603148714
+2018-01-28 13:40:01,484 - brc - INFO - Dev eval loss 16.9995110474
+2018-01-28 13:40:01,485 - brc - INFO - Dev eval result: {'Bleu-4': 0.23497922685586825, 'Rouge-L': 0.28621614862960015, 'Bleu-1': 0.3779147682115102, 'Bleu-3': 0.2626213951864329, 'Bleu-2': 0.3052179360841329}
+2018-01-28 13:40:05,135 - brc - INFO - Model saved in ../data/models/, with prefix MLSTM.
+2018-01-28 13:40:05,136 - brc - INFO - Training the model for epoch 5
+2018-01-28 14:02:42,663 - brc - INFO - Average loss from batch 1 to 50 is 3.47643265724
+2018-01-28 14:25:18,687 - brc - INFO - Average loss from batch 51 to 100 is 3.5049498415
+2018-01-28 14:48:26,979 - brc - INFO - Average loss from batch 101 to 150 is 3.65468430519
+2018-01-28 15:11:28,445 - brc - INFO - Average loss from batch 151 to 200 is 3.63141433239
+2018-01-28 15:34:28,430 - brc - INFO - Average loss from batch 201 to 250 is 3.70398681164
+2018-01-28 15:57:31,561 - brc - INFO - Average loss from batch 251 to 300 is 3.63779812813
+2018-01-28 16:19:59,300 - brc - INFO - Average loss from batch 301 to 350 is 3.58774600506
+2018-01-28 16:42:24,513 - brc - INFO - Average loss from batch 351 to 400 is 3.61307106018
+2018-01-28 17:03:32,049 - brc - INFO - Average loss from batch 401 to 450 is 3.53937374115
+2018-01-28 17:26:26,961 - brc - INFO - Average loss from batch 451 to 500 is 3.61243021011
+2018-01-28 17:48:58,216 - brc - INFO - Average loss from batch 501 to 550 is 3.53698548794
+2018-01-28 18:11:58,676 - brc - INFO - Average loss from batch 551 to 600 is 3.7365686512
+2018-01-28 18:34:43,178 - brc - INFO - Average loss from batch 601 to 650 is 3.72365741253
+2018-01-28 18:58:39,993 - brc - INFO - Average loss from batch 651 to 700 is 3.6519560051
+2018-01-28 19:29:21,352 - brc - INFO - Average loss from batch 701 to 750 is 3.69511552334
+2018-01-28 19:59:11,199 - brc - INFO - Average loss from batch 751 to 800 is 3.81561674118
+2018-01-28 20:29:36,738 - brc - INFO - Average loss from batch 801 to 850 is 3.7596343708
+2018-01-28 21:00:26,276 - brc - INFO - Average loss from batch 851 to 900 is 3.77482618332
+2018-01-28 21:30:52,293 - brc - INFO - Average loss from batch 901 to 950 is 3.88828884125
+2018-01-28 22:01:12,710 - brc - INFO - Average loss from batch 951 to 1000 is 3.83815721989
+2018-01-28 22:32:04,927 - brc - INFO - Average loss from batch 1001 to 1050 is 3.71741549015
+2018-01-28 23:02:16,738 - brc - INFO - Average loss from batch 1051 to 1100 is 3.76533125877
+2018-01-28 23:32:20,129 - brc - INFO - Average loss from batch 1101 to 1150 is 3.82299608707
+2018-01-29 00:02:10,933 - brc - INFO - Average loss from batch 1151 to 1200 is 3.83530782223
+2018-01-29 00:32:12,565 - brc - INFO - Average loss from batch 1201 to 1250 is 3.78251751423
+2018-01-29 01:02:50,591 - brc - INFO - Average loss from batch 1251 to 1300 is 3.74291932106
+2018-01-29 01:32:47,178 - brc - INFO - Average loss from batch 1301 to 1350 is 3.98863079071
+2018-01-29 02:03:20,924 - brc - INFO - Average loss from batch 1351 to 1400 is 3.94388443947
+2018-01-29 02:33:57,770 - brc - INFO - Average loss from batch 1401 to 1450 is 3.75998910904
+2018-01-29 03:03:54,056 - brc - INFO - Average loss from batch 1451 to 1500 is 3.90938297272
+2018-01-29 03:34:16,994 - brc - INFO - Average loss from batch 1501 to 1550 is 3.90841345787
+2018-01-29 04:04:38,187 - brc - INFO - Average loss from batch 1551 to 1600 is 3.95096191883
+2018-01-29 04:35:45,120 - brc - INFO - Average loss from batch 1601 to 1650 is 3.9723007822
+2018-01-29 05:06:17,341 - brc - INFO - Average loss from batch 1651 to 1700 is 4.1711002636
+2018-01-29 05:36:10,496 - brc - INFO - Average loss from batch 1701 to 1750 is 3.87675143719
+2018-01-29 06:06:42,935 - brc - INFO - Average loss from batch 1751 to 1800 is 4.07431900024
+2018-01-29 06:36:52,241 - brc - INFO - Average loss from batch 1801 to 1850 is 4.06385550976
+2018-01-29 07:06:52,345 - brc - INFO - Average loss from batch 1851 to 1900 is 3.83946714401
+2018-01-29 07:37:48,516 - brc - INFO - Average loss from batch 1901 to 1950 is 3.91774775982
+2018-01-29 08:08:10,497 - brc - INFO - Average loss from batch 1951 to 2000 is 4.07035358429
+2018-01-29 08:38:37,321 - brc - INFO - Average loss from batch 2001 to 2050 is 4.03093878746
+2018-01-29 09:09:17,051 - brc - INFO - Average loss from batch 2051 to 2100 is 3.91258308411
+2018-01-29 09:40:03,977 - brc - INFO - Average loss from batch 2101 to 2150 is 3.97903894424
+2018-01-29 10:10:12,387 - brc - INFO - Average loss from batch 2151 to 2200 is 3.86739497185
+2018-01-29 10:40:16,683 - brc - INFO - Average loss from batch 2201 to 2250 is 3.99717940807
+2018-01-29 11:10:22,687 - brc - INFO - Average loss from batch 2251 to 2300 is 4.00635979652
+2018-01-29 11:40:36,089 - brc - INFO - Average loss from batch 2301 to 2350 is 4.19445716381
+2018-01-29 12:10:59,743 - brc - INFO - Average loss from batch 2351 to 2400 is 4.18754740238
+2018-01-29 12:42:10,363 - brc - INFO - Average loss from batch 2401 to 2450 is 4.1262544775
+2018-01-29 13:14:29,742 - brc - INFO - Average loss from batch 2451 to 2500 is 4.13281566143
+2018-01-29 13:48:25,509 - brc - INFO - Average loss from batch 2501 to 2550 is 4.19860664368
+2018-01-29 14:21:53,448 - brc - INFO - Average loss from batch 2551 to 2600 is 4.1863850975
+2018-01-29 14:52:11,710 - brc - INFO - Average loss from batch 2601 to 2650 is 4.25753968716
+2018-01-29 15:18:06,369 - brc - INFO - Average loss from batch 2651 to 2700 is 3.95091350079
+2018-01-29 15:24:30,238 - brc - INFO - Average train loss for epoch 5 is 3.86242307681
+2018-01-29 15:24:30,239 - brc - INFO - Evaluating the model after epoch 5
+{'reflen': 453662, 'guess': [330023, 325101, 320227, 315392], 'testlen': 330023, 'correct': [162123, 103991, 80464, 68477]}
+ratio: 0.727464500002
+2018-01-29 15:57:39,938 - brc - INFO - Dev eval loss 18.3559017944
+2018-01-29 15:57:39,939 - brc - INFO - Dev eval result: {'Bleu-4': 0.20920684462128836, 'Rouge-L': 0.27704733271989773, 'Bleu-1': 0.3377515990058679, 'Bleu-3': 0.23411945520827732, 'Bleu-2': 0.2725435612824878}
+2018-01-29 15:57:39,939 - brc - INFO - Training the model for epoch 6
+2018-01-29 16:22:57,929 - brc - INFO - Average loss from batch 1 to 50 is 2.93729027748
+2018-01-29 16:48:03,224 - brc - INFO - Average loss from batch 51 to 100 is 2.80689002037
+2018-01-29 17:13:24,774 - brc - INFO - Average loss from batch 101 to 150 is 2.87904289007
+2018-01-29 17:37:27,659 - brc - INFO - Average loss from batch 151 to 200 is 2.82935287952
+2018-01-29 17:59:59,063 - brc - INFO - Average loss from batch 201 to 250 is 2.87376338005
+2018-01-29 18:23:01,667 - brc - INFO - Average loss from batch 251 to 300 is 2.95974689484
+2018-01-29 18:45:40,610 - brc - INFO - Average loss from batch 301 to 350 is 2.91547684908
+2018-01-29 19:08:23,876 - brc - INFO - Average loss from batch 351 to 400 is 2.96704153061
+2018-01-29 19:31:23,024 - brc - INFO - Average loss from batch 401 to 450 is 2.93515254736
+2018-01-29 19:53:54,447 - brc - INFO - Average loss from batch 451 to 500 is 2.85199997902
+2018-01-29 20:17:08,937 - brc - INFO - Average loss from batch 501 to 550 is 3.10409362793
+2018-01-29 20:40:08,471 - brc - INFO - Average loss from batch 551 to 600 is 3.12187222958
+2018-01-29 21:03:09,417 - brc - INFO - Average loss from batch 601 to 650 is 2.9549955368
+2018-01-29 21:29:56,407 - brc - INFO - Average loss from batch 651 to 700 is 3.12353593349
+2018-01-29 22:00:17,671 - brc - INFO - Average loss from batch 701 to 750 is 3.08216041565
+2018-01-29 22:30:58,065 - brc - INFO - Average loss from batch 751 to 800 is 3.26070436954
+2018-01-29 23:01:57,516 - brc - INFO - Average loss from batch 801 to 850 is 3.10507966518
+2018-01-29 23:32:38,247 - brc - INFO - Average loss from batch 851 to 900 is 3.02532907963
+2018-01-30 00:03:19,114 - brc - INFO - Average loss from batch 901 to 950 is 3.18563292503
+2018-01-30 00:32:44,200 - brc - INFO - Average loss from batch 951 to 1000 is 3.0684407568
+2018-01-30 01:03:18,523 - brc - INFO - Average loss from batch 1001 to 1050 is 3.11249043465
+2018-01-30 01:33:33,497 - brc - INFO - Average loss from batch 1051 to 1100 is 3.08811708689
+2018-01-30 02:03:37,171 - brc - INFO - Average loss from batch 1101 to 1150 is 3.02574538469
+2018-01-30 02:33:21,991 - brc - INFO - Average loss from batch 1151 to 1200 is 3.22151230335
+2018-01-30 03:03:36,327 - brc - INFO - Average loss from batch 1201 to 1250 is 3.09520030499
+2018-01-30 03:33:48,067 - brc - INFO - Average loss from batch 1251 to 1300 is 3.07902276039
+2018-01-30 04:03:49,565 - brc - INFO - Average loss from batch 1301 to 1350 is 3.20649097204
+2018-01-30 04:34:02,814 - brc - INFO - Average loss from batch 1351 to 1400 is 3.10775616169
+2018-01-30 05:04:11,563 - brc - INFO - Average loss from batch 1401 to 1450 is 3.24862026215
+2018-01-30 05:34:23,322 - brc - INFO - Average loss from batch 1451 to 1500 is 3.24588997841
+2018-01-30 06:05:00,903 - brc - INFO - Average loss from batch 1501 to 1550 is 3.40085767746
+2018-01-30 06:35:16,183 - brc - INFO - Average loss from batch 1551 to 1600 is 3.18022820473
+2018-01-30 07:05:24,935 - brc - INFO - Average loss from batch 1601 to 1650 is 3.16104646683
+2018-01-30 07:35:20,609 - brc - INFO - Average loss from batch 1651 to 1700 is 3.14188362598
+2018-01-30 08:06:11,889 - brc - INFO - Average loss from batch 1701 to 1750 is 3.26665494919
+2018-01-30 08:36:35,639 - brc - INFO - Average loss from batch 1751 to 1800 is 3.21196478367
+2018-01-30 09:06:28,370 - brc - INFO - Average loss from batch 1801 to 1850 is 3.38815925598
+2018-01-30 09:35:53,917 - brc - INFO - Average loss from batch 1851 to 1900 is 3.25899490833
+2018-01-30 10:05:55,831 - brc - INFO - Average loss from batch 1901 to 1950 is 3.47848027706
+2018-01-30 10:36:06,265 - brc - INFO - Average loss from batch 1951 to 2000 is 3.43024934292
+2018-01-30 11:06:30,908 - brc - INFO - Average loss from batch 2001 to 2050 is 3.34189357758
+2018-01-30 11:36:46,364 - brc - INFO - Average loss from batch 2051 to 2100 is 3.25627354145
+2018-01-30 12:06:45,094 - brc - INFO - Average loss from batch 2101 to 2150 is 3.33226598263
+2018-01-30 12:36:59,081 - brc - INFO - Average loss from batch 2151 to 2200 is 3.32010560513
+2018-01-30 13:06:30,531 - brc - INFO - Average loss from batch 2201 to 2250 is 3.36977868557
+2018-01-30 13:36:36,579 - brc - INFO - Average loss from batch 2251 to 2300 is 3.33812293053
+2018-01-30 14:07:38,465 - brc - INFO - Average loss from batch 2301 to 2350 is 3.38439883709
+2018-01-30 14:38:30,176 - brc - INFO - Average loss from batch 2351 to 2400 is 3.27966106415
+2018-01-30 15:10:33,423 - brc - INFO - Average loss from batch 2401 to 2450 is 3.3777186203
+2018-01-30 15:44:24,715 - brc - INFO - Average loss from batch 2451 to 2500 is 3.34635630608
+2018-01-30 16:15:36,201 - brc - INFO - Average loss from batch 2501 to 2550 is 3.48700381279
+2018-01-30 16:44:11,340 - brc - INFO - Average loss from batch 2551 to 2600 is 3.51017107964
+2018-01-30 17:12:12,748 - brc - INFO - Average loss from batch 2601 to 2650 is 3.41703130722
+2018-01-30 17:36:50,392 - brc - INFO - Average loss from batch 2651 to 2700 is 3.42547496319
+2018-01-30 17:42:55,960 - brc - INFO - Average train loss for epoch 6 is 3.17716216329
+2018-01-30 17:42:55,961 - brc - INFO - Evaluating the model after epoch 6
+{'reflen': 460333, 'guess': [354464, 349541, 344719, 339957], 'testlen': 354464, 'correct': [168611, 108611, 84406, 72040]}
+ratio: 0.770016488064
+2018-01-30 18:12:38,815 - brc - INFO - Dev eval loss 18.8503732361
+2018-01-30 18:12:38,816 - brc - INFO - Dev eval result: {'Bleu-4': 0.21952024031306028, 'Rouge-L': 0.27346135565608626, 'Bleu-1': 0.35285926197702855, 'Bleu-3': 0.2453693261031524, 'Bleu-2': 0.28518880957141285}
+2018-01-30 18:12:38,816 - brc - INFO - Training the model for epoch 7
+2018-01-30 18:36:33,257 - brc - INFO - Average loss from batch 1 to 50 is 2.38699179173
+2018-01-30 19:00:49,591 - brc - INFO - Average loss from batch 51 to 100 is 2.43343593597
+2018-01-30 19:24:26,630 - brc - INFO - Average loss from batch 101 to 150 is 2.45130576611
+2018-01-30 19:48:26,828 - brc - INFO - Average loss from batch 151 to 200 is 2.39780548811
+2018-01-30 20:13:08,496 - brc - INFO - Average loss from batch 201 to 250 is 2.47449383736
+2018-01-30 20:37:31,676 - brc - INFO - Average loss from batch 251 to 300 is 2.49752164125
+2018-01-30 21:01:38,761 - brc - INFO - Average loss from batch 301 to 350 is 2.52116420031
+2018-01-30 21:25:09,532 - brc - INFO - Average loss from batch 351 to 400 is 2.36153953552
+2018-01-30 21:48:42,408 - brc - INFO - Average loss from batch 401 to 450 is 2.49024663925
+2018-01-30 22:12:05,387 - brc - INFO - Average loss from batch 451 to 500 is 2.38961491346
+2018-01-30 22:34:46,016 - brc - INFO - Average loss from batch 501 to 550 is 2.53423971415
+2018-01-30 22:57:20,025 - brc - INFO - Average loss from batch 551 to 600 is 2.48473590136
+2018-01-30 23:20:53,458 - brc - INFO - Average loss from batch 601 to 650 is 2.52343488932
+2018-01-30 23:44:31,297 - brc - INFO - Average loss from batch 651 to 700 is 2.50605144739
+2018-01-31 00:07:13,322 - brc - INFO - Average loss from batch 701 to 750 is 2.51907538414
+2018-01-31 00:30:17,944 - brc - INFO - Average loss from batch 751 to 800 is 2.58421954155
+2018-01-31 00:53:38,215 - brc - INFO - Average loss from batch 801 to 850 is 2.59362066031
+2018-01-31 01:16:15,641 - brc - INFO - Average loss from batch 851 to 900 is 2.51495084763
+2018-01-31 01:38:59,070 - brc - INFO - Average loss from batch 901 to 950 is 2.57516661644
+2018-01-31 02:01:44,962 - brc - INFO - Average loss from batch 951 to 1000 is 2.59869499922
+2018-01-31 02:24:17,030 - brc - INFO - Average loss from batch 1001 to 1050 is 2.53627846718
+2018-01-31 02:45:37,415 - brc - INFO - Average loss from batch 1051 to 1100 is 2.5988486433
+2018-01-31 03:07:57,860 - brc - INFO - Average loss from batch 1101 to 1150 is 2.5443162632
+2018-01-31 03:30:35,931 - brc - INFO - Average loss from batch 1151 to 1200 is 2.77040917873
+2018-01-31 03:53:09,418 - brc - INFO - Average loss from batch 1201 to 1250 is 2.62938151836
+2018-01-31 04:15:45,170 - brc - INFO - Average loss from batch 1251 to 1300 is 2.52397386312
+2018-01-31 04:38:36,467 - brc - INFO - Average loss from batch 1301 to 1350 is 2.55672849417
+2018-01-31 05:01:24,726 - brc - INFO - Average loss from batch 1351 to 1400 is 2.63936157227
+2018-01-31 05:24:29,603 - brc - INFO - Average loss from batch 1401 to 1450 is 2.723445158
+2018-01-31 05:47:28,847 - brc - INFO - Average loss from batch 1451 to 1500 is 2.67567950726
+2018-01-31 06:10:12,069 - brc - INFO - Average loss from batch 1501 to 1550 is 2.6895665741
+2018-01-31 06:32:45,642 - brc - INFO - Average loss from batch 1551 to 1600 is 2.68232396126
+2018-01-31 06:55:32,771 - brc - INFO - Average loss from batch 1601 to 1650 is 2.67129584074
+2018-01-31 07:18:25,769 - brc - INFO - Average loss from batch 1651 to 1700 is 2.69139254332
+2018-01-31 07:41:20,215 - brc - INFO - Average loss from batch 1701 to 1750 is 2.69174066544
+2018-01-31 08:03:53,839 - brc - INFO - Average loss from batch 1751 to 1800 is 2.64974709749
+2018-01-31 08:26:25,463 - brc - INFO - Average loss from batch 1801 to 1850 is 2.88310087681
+2018-01-31 08:49:05,675 - brc - INFO - Average loss from batch 1851 to 1900 is 2.85855183125
+2018-01-31 09:12:11,898 - brc - INFO - Average loss from batch 1901 to 1950 is 2.67651809454
+2018-01-31 09:34:51,280 - brc - INFO - Average loss from batch 1951 to 2000 is 2.76611288548
+2018-01-31 09:57:37,057 - brc - INFO - Average loss from batch 2001 to 2050 is 2.83392961025
+2018-01-31 10:20:21,642 - brc - INFO - Average loss from batch 2051 to 2100 is 2.99370636463
+2018-01-31 10:43:44,787 - brc - INFO - Average loss from batch 2101 to 2150 is 2.81835719109
+2018-01-31 11:06:31,810 - brc - INFO - Average loss from batch 2151 to 2200 is 2.75277456045
+2018-01-31 11:29:28,601 - brc - INFO - Average loss from batch 2201 to 2250 is 2.84901247501
+2018-01-31 12:02:09,683 - brc - INFO - Average loss from batch 2251 to 2300 is 2.89600029945
+2018-01-31 12:34:50,960 - brc - INFO - Average loss from batch 2301 to 2350 is 2.92189755917
+2018-01-31 13:08:42,040 - brc - INFO - Average loss from batch 2351 to 2400 is 2.84301501513
+2018-01-31 13:42:34,390 - brc - INFO - Average loss from batch 2401 to 2450 is 2.78294770956
+2018-01-31 14:16:20,527 - brc - INFO - Average loss from batch 2451 to 2500 is 2.86353263378
+2018-01-31 14:49:30,180 - brc - INFO - Average loss from batch 2501 to 2550 is 2.93643718719
+2018-01-31 15:21:16,330 - brc - INFO - Average loss from batch 2551 to 2600 is 2.92388962984
+2018-01-31 15:54:14,860 - brc - INFO - Average loss from batch 2601 to 2650 is 2.99882945776
+2018-01-31 16:27:42,974 - brc - INFO - Average loss from batch 2651 to 2700 is 2.8315662241
+2018-01-31 16:36:19,075 - brc - INFO - Average train loss for epoch 7 is 2.65921038039
+2018-01-31 16:36:19,077 - brc - INFO - Evaluating the model after epoch 7
+{'reflen': 454082, 'guess': [333216, 328296, 323554, 318885], 'testlen': 333216, 'correct': [160928, 103391, 80293, 68510]}
+ratio: 0.733823406345
+2018-01-31 17:20:07,003 - brc - INFO - Dev eval loss 21.4132161133
+2018-01-31 17:20:07,005 - brc - INFO - Dev eval result: {'Bleu-4': 0.20879190845527787, 'Rouge-L': 0.2651062659762266, 'Bleu-1': 0.3360284171321548, 'Bleu-3': 0.23339319008648846, 'Bleu-2': 0.2713511677465253}
+2018-01-31 17:20:07,005 - brc - INFO - Training the model for epoch 8
+2018-01-31 17:53:08,785 - brc - INFO - Average loss from batch 1 to 50 is 2.00888162613
+2018-01-31 18:25:46,614 - brc - INFO - Average loss from batch 51 to 100 is 1.89191897392
+2018-01-31 18:58:53,335 - brc - INFO - Average loss from batch 101 to 150 is 1.88876008034
+2018-01-31 19:31:52,326 - brc - INFO - Average loss from batch 151 to 200 is 2.06573485255
+2018-01-31 20:04:29,452 - brc - INFO - Average loss from batch 201 to 250 is 2.13397685289
+2018-01-31 20:35:42,150 - brc - INFO - Average loss from batch 251 to 300 is 1.96915909529
+2018-01-31 21:07:22,757 - brc - INFO - Average loss from batch 301 to 350 is 2.03469634771
+2018-01-31 21:36:14,782 - brc - INFO - Average loss from batch 351 to 400 is 2.03969874859
+2018-01-31 22:02:04,189 - brc - INFO - Average loss from batch 401 to 450 is 2.15356940269
+2018-01-31 22:26:15,526 - brc - INFO - Average loss from batch 451 to 500 is 2.09578081846
+2018-01-31 22:49:34,738 - brc - INFO - Average loss from batch 501 to 550 is 2.03206342936
+2018-01-31 23:13:16,150 - brc - INFO - Average loss from batch 551 to 600 is 2.08424538851
+2018-01-31 23:36:29,708 - brc - INFO - Average loss from batch 601 to 650 is 2.01332052946
+2018-01-31 23:59:28,453 - brc - INFO - Average loss from batch 651 to 700 is 2.09255991459
+2018-02-01 00:22:32,198 - brc - INFO - Average loss from batch 701 to 750 is 2.22519713879
+2018-02-01 00:45:21,091 - brc - INFO - Average loss from batch 751 to 800 is 2.20622041941
+2018-02-01 01:08:08,049 - brc - INFO - Average loss from batch 801 to 850 is 2.18346982956
+2018-02-01 01:31:07,437 - brc - INFO - Average loss from batch 851 to 900 is 2.22117600203
+2018-02-01 01:54:09,749 - brc - INFO - Average loss from batch 901 to 950 is 2.17080596447
+2018-02-01 02:17:01,693 - brc - INFO - Average loss from batch 951 to 1000 is 2.11721354008
+2018-02-01 02:39:53,051 - brc - INFO - Average loss from batch 1001 to 1050 is 2.22735676289
+2018-02-01 03:03:17,020 - brc - INFO - Average loss from batch 1051 to 1100 is 2.26102900743
+2018-02-01 03:26:41,568 - brc - INFO - Average loss from batch 1101 to 1150 is 2.17216321945
+2018-02-01 03:49:26,160 - brc - INFO - Average loss from batch 1151 to 1200 is 2.3638251853
+2018-02-01 04:12:18,278 - brc - INFO - Average loss from batch 1201 to 1250 is 2.17132143259
+2018-02-01 04:34:01,738 - brc - INFO - Average loss from batch 1251 to 1300 is 2.19673887491
+2018-02-01 04:56:26,610 - brc - INFO - Average loss from batch 1301 to 1350 is 2.25312474728
+2018-02-01 05:18:48,417 - brc - INFO - Average loss from batch 1351 to 1400 is 2.19988141298
+2018-02-01 05:41:42,245 - brc - INFO - Average loss from batch 1401 to 1450 is 2.37346703529
+2018-02-01 06:04:24,620 - brc - INFO - Average loss from batch 1451 to 1500 is 2.22387433529
+2018-02-01 06:27:08,227 - brc - INFO - Average loss from batch 1501 to 1550 is 2.29934705973
+2018-02-01 06:50:13,206 - brc - INFO - Average loss from batch 1551 to 1600 is 2.31218504906
+2018-02-01 07:12:51,859 - brc - INFO - Average loss from batch 1601 to 1650 is 2.3630142951
+2018-02-01 07:35:41,149 - brc - INFO - Average loss from batch 1651 to 1700 is 2.23266470909
+2018-02-01 07:58:25,806 - brc - INFO - Average loss from batch 1701 to 1750 is 2.35831726551
+2018-02-01 08:21:26,251 - brc - INFO - Average loss from batch 1751 to 1800 is 2.40203568935
+2018-02-01 08:44:23,988 - brc - INFO - Average loss from batch 1801 to 1850 is 2.1914345336
+2018-02-01 09:07:08,294 - brc - INFO - Average loss from batch 1851 to 1900 is 2.29063553572
+2018-02-01 09:29:51,758 - brc - INFO - Average loss from batch 1901 to 1950 is 2.4115413475
+2018-02-01 09:52:31,845 - brc - INFO - Average loss from batch 1951 to 2000 is 2.38384403706
+2018-02-01 10:15:22,770 - brc - INFO - Average loss from batch 2001 to 2050 is 2.37751490593
+2018-02-01 10:38:30,736 - brc - INFO - Average loss from batch 2051 to 2100 is 2.35086121082
+2018-02-01 11:01:25,851 - brc - INFO - Average loss from batch 2101 to 2150 is 2.44994553089
+2018-02-01 11:24:11,591 - brc - INFO - Average loss from batch 2151 to 2200 is 2.47842712879
+2018-02-01 11:47:19,012 - brc - INFO - Average loss from batch 2201 to 2250 is 2.36617375374
+2018-02-01 12:10:16,913 - brc - INFO - Average loss from batch 2251 to 2300 is 2.41653355122
+2018-02-01 12:33:19,107 - brc - INFO - Average loss from batch 2301 to 2350 is 2.4499057579
+2018-02-01 12:56:14,327 - brc - INFO - Average loss from batch 2351 to 2400 is 2.48423993349
+2018-02-01 13:19:09,412 - brc - INFO - Average loss from batch 2401 to 2450 is 2.28826953173
+2018-02-01 13:42:07,627 - brc - INFO - Average loss from batch 2451 to 2500 is 2.39294412374
+2018-02-01 14:06:46,164 - brc - INFO - Average loss from batch 2501 to 2550 is 2.54316927671
+2018-02-01 14:31:25,090 - brc - INFO - Average loss from batch 2551 to 2600 is 2.49861982584
+2018-02-01 14:56:15,316 - brc - INFO - Average loss from batch 2601 to 2650 is 2.47405559063
+2018-02-01 15:20:44,548 - brc - INFO - Average loss from batch 2651 to 2700 is 2.57405923605
+2018-02-01 15:26:56,850 - brc - INFO - Average train loss for epoch 8 is 2.25087086895
+2018-02-01 15:26:56,851 - brc - INFO - Evaluating the model after epoch 8
+{'reflen': 445230, 'guess': [290271, 285352, 280586, 275947], 'testlen': 290271, 'correct': [142591, 91415, 70641, 60053]}
+ratio: 0.651957415269
+2018-02-01 15:57:30,778 - brc - INFO - Dev eval loss 22.3362164307
+2018-02-01 15:57:30,779 - brc - INFO - Dev eval result: {'Bleu-4': 0.1786740009926538, 'Rouge-L': 0.24864462871780257, 'Bleu-1': 0.288033902233853, 'Bleu-3': 0.1998912385349948, 'Bleu-2': 0.23260425060731652}
+2018-02-01 15:57:30,779 - brc - INFO - Training the model for epoch 9
+2018-02-01 16:21:21,453 - brc - INFO - Average loss from batch 1 to 50 is 1.66555469871
+2018-02-01 16:45:30,355 - brc - INFO - Average loss from batch 51 to 100 is 1.76700405598
