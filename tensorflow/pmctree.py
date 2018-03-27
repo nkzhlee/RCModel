@@ -10,6 +10,7 @@ import logging
 import time
 import Queue
 import numpy as np
+import os
 
 from treelib import Tree
 import copy
@@ -90,17 +91,28 @@ class Data_tree(object):
 class PSCHTree(object):
     """
     python -u run.py --train --algo MCST --epochs 1 --gpu 2 --max_p_len 2000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
-    nohup python -u run.py --train --algo BIDAF --epochs 10  --train_files ../data/demo/trainset/test_5 --dev_files  ../data/demo/devset/test_5 --test_files ../data/demo/test/search.test.json >test5.txt 2>&1 &
-    nohup python -u run.py --train --algo MCST --epochs 100 --gpu 3 --max_p_len 1000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_313.txt 2>&1 &
+    nohup python -u run.py --train --algo BIDAF --epochs 10 --gpu 0 --train_files ../data/demo/trainset/test_5 --dev_files  ../data/demo/devset/test_5 --test_files ../data/demo/test/search.test.json >test5.txt 2>&1 &
+    nohup python -u run.py --train --algo MCST --epochs 50 --gpu 3 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_50_3_4.txt 2>&1 &
+    
+    nohup python -u run.py --train --algo MCST --epochs 100 --gpu 2 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_100_20_3000.txt 2>&1 &
+    
+    nohup python -u run.py --train --algo MCST --epochs 100 --gpu 2 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test20 --test_files ../data/demo/test/search.test.json >test_100_20_3000.txt 2>&1 &
+    
+    python -u run.py --train --algo MCST --epochs 10 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test20 --test_files ../data/demo/test/search.test.json 
     
     
+    nohup python -u run.py --train --algo MCST --epochs 30 --batch_size 20 --gpu 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_20_10_1000.txt 2>&1 &
+    nohup python -u run.py --train --algo MCST --epochs 30 --batch_size 10 --gpu 0 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_10_10_500.txt 2>&1 &
+    
+    python -u run.py --train --algo MCST --epochs 3 --max_p_len 10000 --batch_size 25 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
+
     """
     def __init__(self, args, vocab):
 
         self.vocab = vocab
         # logging
 
-        self.logger = logging.getLogger("brc")
+        self.logger = logging.getLogger("pmc")
 
         # basic config
         self.algo = args.algo
@@ -118,20 +130,21 @@ class PSCHTree(object):
         self.max_q_len = args.max_q_len
 
         # self.max_a_len = args.max_a_len
-        self.max_a_len = 3
+        self.max_a_len = 4
         # test paras
-        self.search_time = 4
+        self.search_time = 10
         self.beta = 100.0
 
         self._build_graph()
 
-    def _init_sub_tree(self,tree):
-        print '------- init sub tree :' + str(tree['tree_id']) + '---------'
-        start_node = 'question_' + str(tree['tree_id'])
-        mcts_tree = sub_tree(tree)
-        data_tree = Data_tree(mcts_tree, start_node)
-        data_tree.num_of_search += 1
-        return data_tree
+
+    # def _init_sub_tree(self,tree):
+    #     print '------- init sub tree :' + str(tree['tree_id']) + '---------'
+    #     start_node = 'question_' + str(tree['tree_id'])
+    #     mcts_tree = sub_tree(tree)
+    #     data_tree = Data_tree(mcts_tree, start_node)
+    #     data_tree.num_of_search += 1
+    #     return data_tree
 
     def _do_init_tree_job(self, lock,trees_to_accomplish, trees_that_are_done, log):
         while True:
@@ -166,27 +179,27 @@ class PSCHTree(object):
                 #time.sleep(.5)
         return True
 
-    def _search_sub_tree(self, data_tree):
-        sub_tree = data_tree.tree
-        #print '------- search sub tree :' + str(sub_tree.q_id) + '---------'
-        start_node_id = data_tree.start_node
-        data_tree.num_of_search +=1
-        data_tree.select_list=[start_node_id]
-        tmp_node = sub_tree.tree.get_node(start_node_id)
-        while not tmp_node.is_leaf():
-            max_score = float("-inf")
-            max_id = -1
-            for child_id in tmp_node.fpointer:
-                child_node = sub_tree.tree.get_node(child_id)
-                # score = child_node.data.p
-                score = self.beta * child_node.data.p * ((1 + sub_tree.count) / (1 + child_node.data.num))
-                if score > max_score:
-                    max_id = child_id
-                    max_score = score
-            data_tree.select_list.append(max_id)
-            tmp_node = sub_tree.tree.get_node(max_id)
-            data_tree.tmp_node = tmp_node
-        return data_tree
+    # def _search_sub_tree(self, data_tree):
+    #     sub_tree = data_tree.tree
+    #     #print '------- search sub tree :' + str(sub_tree.q_id) + '---------'
+    #     start_node_id = data_tree.start_node
+    #     data_tree.num_of_search +=1
+    #     data_tree.select_list=[start_node_id]
+    #     tmp_node = sub_tree.tree.get_node(start_node_id)
+    #     while not tmp_node.is_leaf():
+    #         max_score = float("-inf")
+    #         max_id = -1
+    #         for child_id in tmp_node.fpointer:
+    #             child_node = sub_tree.tree.get_node(child_id)
+    #             # score = child_node.data.p
+    #             score = self.beta * child_node.data.p * ((1 + sub_tree.count) / (1 + child_node.data.num))
+    #             if score > max_score:
+    #                 max_id = child_id
+    #                 max_score = score
+    #         data_tree.select_list.append(max_id)
+    #         tmp_node = sub_tree.tree.get_node(max_id)
+    #         data_tree.tmp_node = tmp_node
+    #     return data_tree
 
     def _do_search_tree_job(self, lock, trees_to_accomplish, trees_that_are_done, log):
         while True:
@@ -229,6 +242,7 @@ class PSCHTree(object):
                     data_tree.select_list.append(max_id)
                     tmp_node = sub_tree.tree.get_node(max_id)
                     data_tree.tmp_node = tmp_node
+                    print str(data_tree.tmp_node) + ' is selected by ' + str(data_tree.q_id)
                 lock.acquire()
                 try:
                     log.put(str(data_tree.tmp_node) + ' is selected by ' + str(mp.current_process().name))
@@ -275,9 +289,10 @@ class PSCHTree(object):
 
     def feed_in_batch(self, tree_batch, parallel_size,feed_dict):
         self.tree_batch = tree_batch
-        self.para_size = parallel_size
+        self.para_size = len(self.tree_batch['tree_ids'])
         self.batch_size = len(self.tree_batch['tree_ids'])
         #self.feed_dict = feed_dict
+
 
     def tree_search(self):
         trees = []
@@ -287,7 +302,6 @@ class PSCHTree(object):
         for bitx in range(self.batch_size):
             #print '-------------- yeild ' + str(bitx) + '-------------'
             if self.tree_batch['p_length'][bitx] > self.max_p_len:
-                #print '>>>>>>>>>>>>>>>> '
                 self.tree_batch['p_length'][bitx] = self.max_p_len
                 self.tree_batch['candidates'][bitx] = self.tree_batch['candidates'][bitx][:(self.max_p_len)] #???
             tree = {'tree_id': self.tree_batch['tree_ids'][bitx],
@@ -322,13 +336,6 @@ class PSCHTree(object):
         # completing process
         for p in processes:
             p.join()
-        # while not log.empty():
-        #     1==1
-        #     print(log.get())
-
-        # for i,p in enumerate(processes):
-        #     if not p.is_alive():
-        #         print ("[MAIN]: WORKER is a goner", i)
 
         # init the root node and expand the root node
 
@@ -343,7 +350,7 @@ class PSCHTree(object):
         self.tree_list = self.expands(init_list)
         # search tree
 
-        for t in xrange(self.max_a_len):
+        for t in range(self.max_a_len):
             print ('Answer_len', t)
             if len(self.tree_list) == 0:
                 break
@@ -357,33 +364,40 @@ class PSCHTree(object):
             #search_time =int(self.search_time- has_visit_num)
             for s_time in range(self.search_time):
                 print ('search time', s_time)
-
+                start_one_time = time.time()
                 # creating processes
                 processes_search = []
 
                 tree_search_queue = manager.Queue()
                 tree_result_queue = manager.Queue()
-
+                print ('batch', self.batch_size)
                 for tree in self.tree_list:
-                    #print ('type', type(tree))
                     tree_search_queue.put(tree)
 
                 search_tree_list = []
-
-                for w in range(number_of_procs):
+                for w in range(number_of_procs+1):
                     p = mp.Process(target=self._do_search_tree_job, args=(lock, tree_search_queue, tree_result_queue, log))
                     processes_search.append(p)
                     p.start()
-                    time.sleep(0.1)
-
-                while 1:
-                    if not tree_result_queue.empty():
-                        data_tree = tree_result_queue.get()
-                        search_tree_list.append(data_tree)
-                    if len(search_tree_list) == number_of_procs:
-                        break
-                    #time.sleep(0.1)
-
+                    time.sleep(0.001)
+                for p in processes_search:
+                    p.join()
+                print 'join'
+                while not tree_result_queue.empty():
+                    data_tree = tree_result_queue.get()
+                    search_tree_list.append(data_tree)
+                num_wait_iter = 0
+                # while 1:
+                #     time.sleep(0.01)
+                #     num_wait_iter += 1
+                #     if not tree_result_queue.empty():
+                #         data_tree = tree_result_queue.get()
+                #         search_tree_list.append(data_tree)
+                #     if num_wait_iter >= 50:
+                #         print ('len(search_tree_list)',len(search_tree_list))
+                #         print ('number_of_procs',number_of_procs)
+                #     if len(search_tree_list) == number_of_procs:
+                #         break
                 # completing process
                 for p in processes_search:
                     #p.join()
@@ -413,9 +427,11 @@ class PSCHTree(object):
 
                 self.tree_list = self.expands(tree_need_expand_list)
                 self.tree_list = self.tree_list + tree_no_need_expand_list
+                end_one_time = time.time()
+                print ('&&&&&&&&&&&&&&& one tree search time = %3.2f s &&&&&&&&&&&&' % (end_one_time - start_one_time))
 
 
-            print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
+            #print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
             num_action_procs = 0
             self.finished_tree = []
             action_queue = manager.Queue()
@@ -442,7 +458,7 @@ class PSCHTree(object):
                 p = mp.Process(target=self._do_tree_action_job, args=(lock, action_queue, action_result_queue, log))
                 processes_action.append(p)
                 p.start()
-                time.sleep(0.1)
+                #time.sleep(0.1)
             # completing process
             while 1:
                 #time.sleep(0.1)
@@ -455,22 +471,22 @@ class PSCHTree(object):
             for p in processes_action:
                 p.terminate()
 
-            # while not log.empty():
+            # while not log.empty(  ):
             #     print(log.get())
 
             self.tree_list = action_tree_list
-            for selection in action_tree_list:
-                print ('selection', selection.listSelectedSet)
-            print '%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%'
+            # for selection in action_tree_list:
+            #     print ('selection', selection.listSelectedSet)
+            #print '%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%'
 
         for t in self.tree_list:
             self.finished_tree.append(t)
         time_tree_end = time.time()
-        print ('&&&&&&&&&&&&&&& tree search time = %3.2f s &&&&&&&&&&&&' %(time_tree_end-time_tree_start))
-        print ('--------------- end tree:', len(self.finished_tree))
+
+        #print ('--------------- end tree:', len(self.finished_tree))
         #create nodes --->search  until finish ----
-        pred_answers,ref_answers = [],[]
         for data_tree in self.finished_tree:
+            pred_answers, ref_answers = [], []
             p_words_list = data_tree.words_id_list
             listSelectedSet_words = []
             listSelectedSet = map(eval, data_tree.listSelectedSet)
@@ -498,11 +514,11 @@ class PSCHTree(object):
             else:
                 bleu_rouge = None
             value_with_mcts = bleu_rouge
-            print 'bleu_rouge(value_with_mcts): '
-            print value_with_mcts
+            #print 'bleu_rouge(value_with_mcts): '
+            #print value_with_mcts
             data_tree.result_value = value_with_mcts
 
-        print '============= start compute loss ==================='
+        #print '============= start compute loss ==================='
         loss_time_start = time.time()
         first_sample_list = []
         sample_list = []
@@ -530,19 +546,6 @@ class PSCHTree(object):
                 for prob_key, prob_value in prob_data.items():
                     c.append(prob_key)
                     policy.append(prob_value)
-                # print ('tree_id', data_tree.q_id)
-                # print 'listSelectedSet[:prob_id]'
-                # print listSelectedSet[:prob_id]
-                # print 'policy: '
-                # print policy
-                # print 'sum_policy'
-                # print np.sum(policy)
-                # print 'shape_policy'
-                # print np.shape(policy)
-                # print 'value: '
-                # print data_tree.result_value['Rouge-L']
-                # print 'candidate: '
-                # print c
                 if prob_id == 0:
                     input_v = data_tree.result_value['Rouge-L']
                     feed_dict = {self.p: [tree_data['passage_token_id']],
@@ -617,24 +620,11 @@ class PSCHTree(object):
             self.selected_id_list: fd_selected_list, self.seq_length:selected_length_list, self.selected_batch_size : len(selected_length_list),
             self.candidate_id: fd_policy_c_id_list, self.candidate_batch_size: [len(fd_policy_c_id_list),1,1],
             self.policy: policy_list, self.v: [value_list]}.items())
-        # print ('shape of p_list',np.shape(p_list))
-        # print ('shape of q_list', np.shape(q_list))
-        # print ('shape of p_length', np.shape(p_length))
-        # print ('shape of q_length', np.shape(q_length))
-        # print ('shape of fd_selected_list', np.shape(fd_selected_list))
-        # print ('shape of selected_length_list', np.shape(selected_length_list))
-        # print ('shape of selected_batch_size', np.shape(len(selected_length_list)))
-        # print ('shape of fd_policy_c_id_list', np.shape(fd_policy_c_id_list))
-        # print ('shape of candidate_batch_size', np.shape([len(fd_policy_c_id_list),1,1]))
-        # print ('shape of policy_list', np.shape(policy_list))
-        # print ('shape of [value_list]', np.shape([value_list]))
-        #print ('shape of ', np.shape())
-
         _, loss = self.sess.run([self.optimizer,self.loss], feed_dict=feeddict)
         loss_time_end = time.time()
         print('loss',loss)
-        print ('time of computer loss is %3.2f s' %(loss_time_end-loss_time_start))
-        print '==================== end computer loss ================ '
+        #print ('time of computer loss is %3.2f s' %(loss_time_end-loss_time_start))
+        # print '==================== end computer loss ================ '
         # loss = self.sess.run(self.loss, feed_dict=feeddict)
         # print('loss',loss)
 
@@ -645,10 +635,567 @@ class PSCHTree(object):
         #     self.logger.info('Average loss from batch {} to {} is {}'.format(
         #         bitx - log_every_n_batch + 1, bitx, n_batch_loss / log_every_n_batch))
         #return 1.0 * total_loss / total_num
-        
-
 
         return 0
+
+    def evaluate_tree_search(self, evaluate_batch):
+        print '++++++++++++++++ start evaluation ++++++++++++++++'
+        star_time = time.time()
+        trees = []
+        #self.tree_batch = evaluate_batch
+        time_tree_start = time.time()
+        # 1)initialize trees
+        for bitx in range(self.batch_size):
+            # print '-------------- yeild ' + str(bitx) + '-------------'
+            if evaluate_batch['p_length'][bitx] > self.max_p_len:
+                evaluate_batch['p_length'][bitx] = self.max_p_len
+                evaluate_batch['candidates'][bitx] = self.tree_batch['candidates'][bitx][:(self.max_p_len)]  # ???
+            tree = {'tree_id': self.tree_batch['tree_ids'][bitx],
+                    'question_token_ids': evaluate_batch['root_tokens'][bitx],
+                    'passage_token_id': evaluate_batch['candidates'][bitx],
+                    'q_length': evaluate_batch['q_length'][bitx],
+                    'p_length': evaluate_batch['p_length'][bitx],
+                    'question_type': evaluate_batch['question_type'][bitx],
+                    'ref_answer': evaluate_batch['ref_answers'][bitx]
+                    }
+            trees.append(tree)
+
+        print ('Max parallel processes size: ', self.para_size)
+        number_of_procs = self.para_size
+        manager = mp.Manager()
+        trees_to_accomplish = manager.Queue()
+        trees_that_are_done = manager.Queue()
+        log = mp.Queue()
+        processes = []
+        lock = manager.Lock()
+        for i in trees:
+            trees_to_accomplish.put(i)
+
+        # creating processes
+        for w in range(number_of_procs):
+            p = mp.Process(target=self._do_init_tree_job, args=(lock, trees_to_accomplish, trees_that_are_done, log))
+            processes.append(p)
+            p.start()
+
+        # completing process
+        for p in processes:
+            p.join()
+
+        # init the root node and expand the root node
+
+        self.tree_list = []
+        self.finished_tree = []
+        init_list = []
+        while not trees_that_are_done.empty():
+            now_tree = trees_that_are_done.get()
+            now_tree.expand_node = now_tree.tree.tree.get_node(now_tree.tree.tree.root)
+            init_list.append(now_tree)
+
+        self.tree_list = self.expands(init_list)
+        # search tree
+
+        for t in xrange(self.max_a_len):
+            #print ('Answer_len', t)
+            if len(self.tree_list) == 0:
+                break
+            for data_tree in self.tree_list:
+                has_visit_num = 0.0
+                tmp_node = data_tree.tree.tree.get_node(data_tree.start_node)
+                for child_id in tmp_node.fpointer:
+                    child_node = data_tree.tree.tree.get_node(child_id)
+                    has_visit_num += child_node.data.num
+                data_tree.tree.count = has_visit_num
+            # search_time =int(self.search_time- has_visit_num)
+            for s_time in range(self.search_time):
+                #print ('search time', s_time)
+
+                # creating processes
+                processes_search = []
+
+                tree_search_queue = manager.Queue()
+                tree_result_queue = manager.Queue()
+
+                for tree in self.tree_list:
+                    # print ('type', type(tree))
+                    tree_search_queue.put(tree)
+
+                search_tree_list = []
+
+                for w in range(number_of_procs):
+                    p = mp.Process(target=self._do_search_tree_job,
+                                   args=(lock, tree_search_queue, tree_result_queue, log))
+                    processes_search.append(p)
+                    p.start()
+                    # time.sleep(0.1)
+
+                while 1:
+                    if not tree_result_queue.empty():
+                        data_tree = tree_result_queue.get()
+                        search_tree_list.append(data_tree)
+                    if len(search_tree_list) == number_of_procs:
+                        break
+                        # time.sleep(0.1)
+
+                # completing process
+                for p in processes_search:
+                    # p.join()
+                    p.terminate()
+
+                self.tree_list = []
+                # gather train data
+
+                self.tree_list = self._search_vv_test(search_tree_list)
+
+                tree_need_expand_list = []
+                tree_no_need_expand_list = []
+                for data_tree in self.tree_list:
+                    data_tree_update = self._updates(data_tree)
+                    tmp_node = data_tree_update.tmp_node
+                    l_passage = data_tree_update.l_passage  # ???
+                    word_id = int(tmp_node.data.word[-1])
+                    if tmp_node.is_leaf() and (word_id < (l_passage)):
+                        data_tree_update.expand_node = tmp_node
+                        tree_need_expand_list.append(data_tree_update)
+                    else:
+                        tree_no_need_expand_list.append(data_tree_update)
+
+                self.tree_list = self.expands(tree_need_expand_list)
+                self.tree_list = self.tree_list + tree_no_need_expand_list
+
+            # print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
+            num_action_procs = 0
+            self.finished_tree = []
+            action_queue = manager.Queue()
+            action_result_queue = manager.Queue()
+            for data_tree in self.tree_list:
+                # print ('######### tree.listSelectedSet: ', data_tree.listSelectedSet)
+                if not len(data_tree.listSelectedSet) == 0:
+                    last_word = data_tree.listSelectedSet[-1]
+                    if not last_word == str(data_tree.l_passage):
+                        action_queue.put(data_tree)
+                        num_action_procs += 1
+                    else:
+                        self.finished_tree.append(data_tree)
+                else:
+                    action_queue.put(data_tree)
+                    num_action_procs += 1
+            action_tree_list = []
+            processes_action = []
+            # print ('###start take action ')
+            # print ('len(self.tree_list)', len(self.tree_list))
+
+            for w in range(num_action_procs):
+                # print (w, w)
+                p = mp.Process(target=self._do_tree_action_job, args=(lock, action_queue, action_result_queue, log))
+                processes_action.append(p)
+                p.start()
+                # time.sleep(0.1)
+            # completing process
+            while 1:
+                # time.sleep(0.1)
+                if not action_result_queue.empty():
+                    data_tree = action_result_queue.get()
+                    action_tree_list.append(data_tree)
+                if len(action_tree_list) == num_action_procs:
+                    break
+
+            for p in processes_action:
+                p.terminate()
+
+            # while not log.empty(  ):
+            #     print(log.get())
+
+            self.tree_list = action_tree_list
+            # for selection in action_tree_list:
+            #     print ('selection', selection.listSelectedSet)
+            # print '%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%'
+
+        for t in self.tree_list:
+            self.finished_tree.append(t)
+        time_tree_end = time.time()
+
+        #print ('&&&&&&&&&&&&&&& tree search time = %3.2f s &&&&&&&&&&&&' % (time_tree_end - time_tree_start))
+        # print ('--------------- end tree:', len(self.finished_tree))
+        # create nodes --->search  until finish ----
+        pred_answers, ref_answers = [], []
+        for data_tree in self.finished_tree:
+            p_words_list = data_tree.words_id_list
+            listSelectedSet_words = []
+            listSelectedSet = map(eval, data_tree.listSelectedSet)
+            for idx in listSelectedSet:
+                listSelectedSet_words.append(p_words_list[idx])
+            strr123 = self.vocab.recover_from_ids(listSelectedSet_words, 0)
+            pred_answers.append({'question_id': data_tree.q_id,
+                                 'question_type': data_tree.q_type,
+                                 'answers': [''.join(strr123)],
+                                 'entity_answers': [[]],
+                                 'yesno_answers': []})
+            ref_answers.append({'question_id': data_tree.q_id,
+                                'question_type': data_tree.q_type,
+                                'answers': data_tree.ref_answer,
+                                'entity_answers': [[]],
+                                'yesno_answers': []})
+        if len(ref_answers) > 0:
+            pred_dict, ref_dict = {}, {}
+            for pred, ref in zip(pred_answers, ref_answers):
+                question_id = ref['question_id']
+                if len(ref['answers']) > 0:
+                    pred_dict[question_id] = normalize(pred['answers'])
+                    ref_dict[question_id] = normalize(ref['answers'])
+            bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+        else:
+            bleu_rouge = None
+        value_with_mcts = bleu_rouge
+        #print 'bleu_rouge(value_with_mcts): '
+        #print value_with_mcts
+        data_tree.result_value = value_with_mcts
+
+        return pred_answers, ref_answers
+
+    def evaluate_policy(self, evaluate_batch):
+        print '++++++++++++++++ start evaluate_policy ++++++++++++++++'
+        star_time = time.time()
+        trees = []
+        self.tree_batch = evaluate_batch
+        time_tree_start = time.time()
+        # 1)initialize trees
+        for bitx in range(self.batch_size):
+            # print '-------------- yeild ' + str(bitx) + '-------------'
+            if self.tree_batch['p_length'][bitx] > self.max_p_len:
+                self.tree_batch['p_length'][bitx] = self.max_p_len
+                self.tree_batch['candidates'][bitx] = self.tree_batch['candidates'][bitx][:(self.max_p_len)]  # ???
+            tree = {'tree_id': self.tree_batch['tree_ids'][bitx],
+                    'question_token_ids': self.tree_batch['root_tokens'][bitx],
+                    'passage_token_id': self.tree_batch['candidates'][bitx],
+                    'q_length': self.tree_batch['q_length'][bitx],
+                    'p_length': self.tree_batch['p_length'][bitx],
+                    'question_type': self.tree_batch['question_type'][bitx],
+                    'ref_answer': self.tree_batch['ref_answers'][bitx]
+                    }
+            trees.append(tree)
+
+        print ('Max parallel processes size: ', self.para_size)
+        number_of_procs = self.para_size
+        manager = mp.Manager()
+        trees_to_accomplish = manager.Queue()
+        trees_that_are_done = manager.Queue()
+        log = mp.Queue()
+        processes = []
+        lock = manager.Lock()
+        for i in trees:
+            trees_to_accomplish.put(i)
+
+        # creating processes
+        for w in range(number_of_procs):
+            p = mp.Process(target=self._do_init_tree_job, args=(lock, trees_to_accomplish, trees_that_are_done, log))
+            processes.append(p)
+            p.start()
+
+        # completing process
+        for p in processes:
+            p.join()
+
+        tree_list = []
+
+        while not trees_that_are_done.empty():
+            now_tree = trees_that_are_done.get()
+            tree_list.append(now_tree)
+        loss_time_start = time.time()
+
+        for ans_len in range(self.max_a_len):
+            p_list, q_list = [], []
+            p_length, q_length = [], []
+            p_data_list = []
+            pad = 0
+            result_tree_list = []
+            end_tree_list = []
+            for t_id, data_tree in enumerate(tree_list, 0):
+                tree_data = data_tree.tree.get_raw_tree_data()
+                listSelectedSet = data_tree.listSelectedSet
+                if not (listSelectedSet[-1] == data_tree.l_passage):
+                    pad = [t_id, len(tree_data['passage_token_id']) - 1]
+                    # print ('pad',pad)
+                    words_list = [i for i in range(data_tree.l_passage + 1)]
+                    max_id = float('-inf')
+                    policy_c_id = []
+                    print listSelectedSet
+                    listSelectedSet_id  = map(eval, listSelectedSet)
+                    for can in listSelectedSet_id:
+                        max_id = max(can, max_id)
+                    for idx in range(data_tree.l_passage+1): #??
+                        if idx > max_id:
+                            policy_c_id.append(idx)
+                    if len(listSelectedSet_id) == 0:
+                            feed_dict = {self.p: [tree_data['passage_token_id']],
+                                         self.q: [tree_data['question_token_ids']],
+                                         self.p_length: [tree_data['p_length']],
+                                         self.q_length: [tree_data['q_length']],
+                                         self.words_list: words_list,
+                                         self.dropout_keep_prob: 1.0}
+                            prob_id_first = self.sess.run(self.prob_id_first, feed_dict=feed_dict)
+                            data_tree.listSelectedSet.append(prob_id_first)
+                            print('loss,first', prob_id_first)
+                    else:
+                        p_list.append(tree_data['passage_token_id'])
+                        q_list.append(tree_data['question_token_ids'])
+                        p_length.append(tree_data['p_length'])
+                        q_length.append(tree_data['q_length'])
+                        p_data_list.append(
+                            [t_id, listSelectedSet_id, policy_c_id ])
+                    result_tree_list.append(data_tree)
+                else:
+                    end_tree_list.append(data_tree)
+            policy_c_id_list = []
+            fd_selected_list = []
+            selected_length_list = []
+            candidate_length_list = []
+            fd_policy_c_id_list = []
+
+            for idx, sample in enumerate(p_data_list, 0):
+                # print ('sample', sample)
+                t_id = sample[0]
+                selected_words = sample[1]
+                candidate_words = sample[2]
+                selected_words = map(eval, selected_words)
+                tmp = []
+                for word in selected_words:
+                    tmp.append([t_id, word])
+                fd_selected_list.append(tmp)
+                selected_length_list.append(len(selected_words))
+
+                candidate_words = map(eval, candidate_words)
+                tmp2 = []
+                for word2 in candidate_words:
+                    tmp2.append([t_id, word2])
+                fd_policy_c_id_list.append(tmp2)
+                # no order version
+                candidate_length_list.append(len(candidate_words))
+            fd_selected_list = self._pv_padding(fd_selected_list, selected_length_list, pad)
+            fd_policy_c_id_list = self._pv_padding(fd_policy_c_id_list, candidate_length_list, pad)
+
+            if not (len(fd_selected_list)) == 0:
+                feed_dict = {self.p: p_list,
+                             self.q: q_list,
+                             self.p_length: p_length,
+                             self.q_length: q_length,
+                             self.dropout_keep_prob: 1.0}
+            feeddict = dict(feed_dict.items() + {
+                self.selected_id_list: fd_selected_list, self.seq_length: selected_length_list,
+                self.selected_batch_size: len(selected_length_list),
+                self.candidate_id: fd_policy_c_id_list, self.candidate_batch_size: [len(fd_policy_c_id_list), 1, 1]}.items())
+
+            prob_id = self.sess.run(self.prob_id, feed_dict=feeddict)
+
+            print('loss', prob_id)
+            for id,data_tree in enumerate(result_tree_list):
+                data_tree.listSelectedSet.append(prob_id[id])
+            tree_list = result_tree_list + end_tree_list
+        loss_time_end = time.time()
+        print ('time of test is %3.2f s' % (loss_time_end - loss_time_start))
+        pred_answers, ref_answers = [], []
+        for data_tree in tree_list:
+            p_words_list = data_tree.words_id_list
+            listSelectedSet_words = []
+            listSelectedSet = map(eval, data_tree.listSelectedSet)
+            for idx in listSelectedSet:
+                listSelectedSet_words.append(p_words_list[idx])
+            strr123 = self.vocab.recover_from_ids(listSelectedSet_words, 0)
+            pred_answers.append({'question_id': data_tree.q_id,
+                                 'question_type': data_tree.q_type,
+                                 'answers': [''.join(strr123)],
+                                 'entity_answers': [[]],
+                                 'yesno_answers': []})
+            ref_answers.append({'question_id': data_tree.q_id,
+                                'question_type': data_tree.q_type,
+                                'answers': data_tree.ref_answer,
+                                'entity_answers': [[]],
+                                'yesno_answers': []})
+        if len(ref_answers) > 0:
+            pred_dict, ref_dict = {}, {}
+            for pred, ref in zip(pred_answers, ref_answers):
+                question_id = ref['question_id']
+                if len(ref['answers']) > 0:
+                    pred_dict[question_id] = normalize(pred['answers'])
+                    ref_dict[question_id] = normalize(ref['answers'])
+            bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+        else:
+            bleu_rouge = None
+        value_with_mcts = bleu_rouge
+
+        return value_with_mcts
+
+    def evaluate_value(self, evaluate_batch):
+        print '++++++++++++++++ start evaluate_policy ++++++++++++++++'
+        star_time = time.time()
+        trees = []
+        self.tree_batch = evaluate_batch
+        time_tree_start = time.time()
+        # 1)initialize trees
+        for bitx in range(self.batch_size):
+            # print '-------------- yeild ' + str(bitx) + '-------------'
+            if self.tree_batch['p_length'][bitx] > self.max_p_len:
+                self.tree_batch['p_length'][bitx] = self.max_p_len
+                self.tree_batch['candidates'][bitx] = self.tree_batch['candidates'][bitx][:(self.max_p_len)]  # ???
+            tree = {'tree_id': self.tree_batch['tree_ids'][bitx],
+                    'question_token_ids': self.tree_batch['root_tokens'][bitx],
+                    'passage_token_id': self.tree_batch['candidates'][bitx],
+                    'q_length': self.tree_batch['q_length'][bitx],
+                    'p_length': self.tree_batch['p_length'][bitx],
+                    'question_type': self.tree_batch['question_type'][bitx],
+                    'ref_answer': self.tree_batch['ref_answers'][bitx]
+                    }
+            trees.append(tree)
+
+        print ('Max parallel processes size: ', self.para_size)
+        number_of_procs = self.para_size
+        manager = mp.Manager()
+        trees_to_accomplish = manager.Queue()
+        trees_that_are_done = manager.Queue()
+        log = mp.Queue()
+        processes = []
+        lock = manager.Lock()
+        for i in trees:
+            trees_to_accomplish.put(i)
+
+        # creating processes
+        for w in range(number_of_procs):
+            p = mp.Process(target=self._do_init_tree_job, args=(lock, trees_to_accomplish, trees_that_are_done, log))
+            processes.append(p)
+            p.start()
+
+        # completing process
+        for p in processes:
+            p.join()
+
+        tree_list = []
+
+        while not trees_that_are_done.empty():
+            now_tree = trees_that_are_done.get()
+            tree_list.append(now_tree)
+        loss_time_start = time.time()
+
+        for ans_len in range(self.max_a_len):
+            p_list, q_list = [], []
+            p_length, q_length = [], []
+            p_data_list = []
+            pad = 0
+            result_tree_list = []
+            end_tree_list = []
+            for t_id, data_tree in enumerate(tree_list, 0):
+                tree_data = data_tree.tree.get_raw_tree_data()
+                listSelectedSet = data_tree.listSelectedSet
+                if not (listSelectedSet[-1] == data_tree.l_passage):
+                    pad = [t_id, len(tree_data['passage_token_id']) - 1]
+                    # print ('pad',pad)
+                    words_list = [i for i in range(data_tree.l_passage + 1)]
+                    max_id = float('-inf')
+                    policy_c_id = []
+                    print ('listSelectedSet',listSelectedSet)
+                    listSelectedSet_id = map(eval, listSelectedSet)
+                    for can in listSelectedSet_id:
+                        max_id = max(can, max_id)
+                    for idx in range(data_tree.l_passage + 1):  # ??
+                        if idx > max_id:
+                            policy_c_id.append(idx)
+                    if len(listSelectedSet_id) == 0:
+                        feed_dict = {self.p: [tree_data['passage_token_id']],
+                                     self.q: [tree_data['question_token_ids']],
+                                     self.p_length: [tree_data['p_length']],
+                                     self.q_length: [tree_data['q_length']],
+                                     self.words_list: words_list,
+                                     self.dropout_keep_prob: 1.0}
+                        prob_id_first = self.sess.run(self.prob_id_first, feed_dict=feed_dict)
+                        data_tree.listSelectedSet.append(prob_id_first)
+                        print('loss,first', prob_id_first)
+                    else:
+                        p_list.append(tree_data['passage_token_id'])
+                        q_list.append(tree_data['question_token_ids'])
+                        p_length.append(tree_data['p_length'])
+                        q_length.append(tree_data['q_length'])
+                        p_data_list.append(
+                            [t_id, listSelectedSet_id, policy_c_id])
+                    result_tree_list.append(data_tree)
+                else:
+                    end_tree_list.append(data_tree)
+            policy_c_id_list = []
+            fd_selected_list = []
+            selected_length_list = []
+            candidate_length_list = []
+            fd_policy_c_id_list = []
+
+            for idx, sample in enumerate(p_data_list, 0):
+                # print ('sample', sample)
+                t_id = sample[0]
+                selected_words = sample[1]
+                candidate_words = sample[2]
+                selected_words = map(eval, selected_words)
+                tmp = []
+                for word in selected_words:
+                    tmp.append([t_id, word])
+                fd_selected_list.append(tmp)
+                selected_length_list.append(len(selected_words))
+
+                candidate_words = map(eval, candidate_words)
+                tmp2 = []
+                for word2 in candidate_words:
+                    tmp2.append([t_id, word2])
+                fd_policy_c_id_list.append(tmp2)
+                # no order version
+                candidate_length_list.append(len(candidate_words))
+            fd_selected_list = self._pv_padding(fd_selected_list, selected_length_list, pad)
+            fd_policy_c_id_list = self._pv_padding(fd_policy_c_id_list, candidate_length_list, pad)
+
+            if not (len(fd_selected_list)) == 0:
+                feed_dict = {self.p: p_list,
+                             self.q: q_list,
+                             self.p_length: p_length,
+                             self.q_length: q_length,
+                             self.dropout_keep_prob: 1.0}
+            feeddict = dict(feed_dict.items() + {
+                self.selected_id_list: fd_selected_list, self.seq_length: selected_length_list,
+                self.selected_batch_size: len(selected_length_list),
+                self.candidate_id: fd_policy_c_id_list,
+                self.candidate_batch_size: [len(fd_policy_c_id_list), 1, 1]}.items())
+
+            prob_id = self.sess.run(self.prob_id, feed_dict=feeddict)
+
+            print('loss', prob_id)
+            for id, data_tree in enumerate(result_tree_list):
+                data_tree.listSelectedSet.append(prob_id[id])
+            tree_list = result_tree_list + end_tree_list
+        loss_time_end = time.time()
+        print ('time of test is %3.2f s' % (loss_time_end - loss_time_start))
+        pred_answers, ref_answers = [], []
+        for data_tree in tree_list:
+            p_words_list = data_tree.words_id_list
+            listSelectedSet_words = []
+            listSelectedSet = map(eval, data_tree.listSelectedSet)
+            for idx in listSelectedSet:
+                listSelectedSet_words.append(p_words_list[idx])
+            strr123 = self.vocab.recover_from_ids(listSelectedSet_words, 0)
+            pred_answers.append({'question_id': data_tree.q_id,
+                                 'question_type': data_tree.q_type,
+                                 'answers': [''.join(strr123)],
+                                 'entity_answers': [[]],
+                                 'yesno_answers': []})
+            ref_answers.append({'question_id': data_tree.q_id,
+                                'question_type': data_tree.q_type,
+                                'answers': data_tree.ref_answer,
+                                'entity_answers': [[]],
+                                'yesno_answers': []})
+        if len(ref_answers) > 0:
+            pred_dict, ref_dict = {}, {}
+            for pred, ref in zip(pred_answers, ref_answers):
+                question_id = ref['question_id']
+                if len(ref['answers']) > 0:
+                    pred_dict[question_id] = normalize(pred['answers'])
+                    ref_dict[question_id] = normalize(ref['answers'])
+            bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+        else:
+            bleu_rouge = None
+        value_with_mcts = bleu_rouge
+
+        return value_with_mcts
 
 
     def _pv_padding(self, padding_list, seq_length_list, pad):
@@ -667,7 +1214,7 @@ class PSCHTree(object):
         return padding_list
 
     def expands(self, tree_list):
-        print ('============= start expands ==============')
+       # print ('============= start expands ==============')
         time_expend_start = time.time()
         p_feed = []
         q_feed = []
@@ -720,8 +1267,8 @@ class PSCHTree(object):
                 d_tree.tree.tree.create_node(identifier= id , data=new_node,
                                       parent=leaf_node.identifier)
         time_expand_end = time.time()
-        print ('time of expand is %3.2f s' %(time_expand_end-time_expend_start))
-        print ('================= end expands ==============')
+        # print ('time of expand is %3.2f s' %(time_expand_end-time_expend_start))
+        # print ('================= end expands ==============')
         return tree_list
 
     def _get_init_policy(self, data_tree, l_passage):
@@ -762,7 +1309,7 @@ class PSCHTree(object):
 
     def _search_vv(self, search_tree_list):
         start = time.time()
-        print ('--------------------- start search_vv  ------------------------')
+        #print ('--------------------- start search_vv  ------------------------')
         value_id_list = []
         p_feed = []
         q_feed = []
@@ -800,7 +1347,7 @@ class PSCHTree(object):
                                         'answers': data_tree.ref_answer,
                                         'entity_answers': [[]],
                                         'yesno_answers': []})
-                    print '**************** tree_search get end id ***************'
+                    #print '**************** tree_search get end id ***************'
                     if len(data_tree.ref_answer) > 0:
                         pred_dict, ref_dict = {}, {}
                         for pred, ref in zip(pred_answers, ref_answers):
@@ -812,7 +1359,7 @@ class PSCHTree(object):
                     else:
                         bleu_rouge = None
                     v = bleu_rouge[self.evluation_m]
-                    print ('v: ', v)
+                    #print ('v: ', v)
                     data_tree.v = v
                 else:
                     p_feed.append(np.array(tree_data['passage_token_id']))
@@ -832,8 +1379,48 @@ class PSCHTree(object):
         for t_idx,v_idx in enumerate(value_id_list, 0):
             search_tree_list[v_idx].value = values[t_idx]
         end = time.time()
-        print ('search time: %3.2f s' %(end - start))
-        print('----------------- end search_vv ' + str(end) + '------------------')
+        # print ('search time: %3.2f s' %(end - start))
+        # print('----------------- end search_vv ' + str(end) + '------------------')
+
+        return search_tree_list
+
+    def _search_vv_test(self, search_tree_list):
+        start = time.time()
+        #print ('--------------------- start search_vv  ------------------------')
+        value_id_list = []
+        p_feed = []
+        q_feed = []
+        p_lenth_feed = []
+        q_length_feed = []
+        words_list_list = []
+        for t_id,data_tree in enumerate(search_tree_list,0):
+            tree_data = data_tree.tree.get_raw_tree_data()
+            tmp_node = data_tree.tmp_node
+            word_id = int(tmp_node.data.word[-1])
+            l_passage = data_tree.l_passage  ##???
+            words_list = tmp_node.data.word
+            if len(words_list) == 0:
+                data_tree.value = self._get_init_value(data_tree)
+            else:
+                p_feed.append(np.array(tree_data['passage_token_id']))
+                q_feed.append(np.array(tree_data['question_token_ids']))
+                p_lenth_feed.append(np.array(tree_data['p_length']))
+                q_length_feed.append(np.array(tree_data['q_length']))
+                words_list_list.append(words_list)
+                value_id_list.append(t_id)
+        if not (len(p_feed)) == 0:
+            self.feed_dict = {self.p: p_feed,
+                                  self.q: q_feed,
+                                  self.p_length: p_lenth_feed,
+                                  self.q_length: q_length_feed,
+                                  self.dropout_keep_prob: 1.0}
+            values = self._cal_values(words_list_list, self.feed_dict)
+
+        for t_idx,v_idx in enumerate(value_id_list, 0):
+            search_tree_list[v_idx].value = values[t_idx]
+        #end = time.time()
+        # print ('search time: %3.2f s' %(end - start))
+        # print('----------------- end search_vv ' + str(end) + '------------------')
 
         return search_tree_list
 
@@ -920,7 +1507,7 @@ class PSCHTree(object):
         return padding_list
 
     def _cal_policys(self, words_list_list, l_passage_list, feeddict):
-
+        print '_cal_policys'
         policy_c_id_list = []
         fd_words_list = []
         seq_length_list = []
@@ -949,8 +1536,32 @@ class PSCHTree(object):
             for word in policy_c_id:
                 tmp2.append([idx, word])
             fd_policy_c_id_list.append(tmp2)
-        #print ('start_padding', candidate_length_list)
+
+
         fd_policy_c_id_list = self._policy_padding(fd_policy_c_id_list,candidate_length_list,pad)
+
+        ## check
+        shape = []
+        for fd in fd_words_list:
+            shape.append(len(fd))
+            if not len(shape) == 0:
+                for l in shape:
+                    if not l == len(fd):
+                        print ('len(fd)', len(fd))
+                        print fd
+                        print ('l', l)
+                    assert l == len(fd)
+
+        # print ('start_padding', candidate_length_list)
+        shape = []
+        for fd in fd_policy_c_id_list:
+            shape.append(len(fd))
+            if not len(shape) == 0:
+                for l in shape:
+                    if not l == len(fd):
+                        print ('len(fd)', len(fd))
+                        print ('l', l)
+                    assert l == len(fd)
 
         selected_batch_size = len(fd_words_list)
         candidate_batch_size  = [len(fd_policy_c_id_list),1,1]
@@ -1100,6 +1711,7 @@ class PSCHTree(object):
         #（6，300）
         self.value = tf.sigmoid(tf.matmul(self.states, self.W) + self.W_b)  # [6,1]
 
+
         #self.value = tf.sigmoid(tf.reshape(tf.matmul(self.states, self.W), [1, 1]) + self.W_b)  # [1,1]
 
         self.VV = tf.expand_dims(self.V, 0)
@@ -1113,7 +1725,7 @@ class PSCHTree(object):
         # self.shape_b = tf.shape(self.s_states)
         self.logits = tf.matmul(self.can, self.s_states)
         self.prob = tf.nn.softmax(self.logits,dim = 1)# (6,458,1)
-        self.prob_id = tf.argmax(self.prob)
+        self.prob_id = tf.argmax(self.prob,1)
 
 
 
@@ -1150,6 +1762,19 @@ class PSCHTree(object):
             raise NotImplementedError('Unsupported optimizer: {}'.format(self.optim_type))
         self.train_op = self.optimizer.minimize(self.loss)
 
+    def save(self, model_dir, model_prefix):
+        """
+        Saves the model into model_dir with model_prefix as the model indicator
+        """
+        self.saver.save(self.sess, os.path.join(model_dir, model_prefix))
+        self.logger.info('Model saved in {}, with prefix {}.'.format(model_dir, model_prefix))
+
+    def restore(self, model_dir, model_prefix):
+        """
+        Restores the model into model_dir from model_prefix as the model indicator
+        """
+        self.saver.restore(self.sess, os.path.join(model_dir, model_prefix))
+        self.logger.info('Model restored from {}, with prefix {}'.format(model_dir, model_prefix))
 
 if __name__ == '__main__':
     1 == 1

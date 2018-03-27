@@ -11,7 +11,8 @@ from treelib import Tree
 import copy
 from utils import normalize
 from utils import compute_bleu_rouge
-
+import time
+import numpy as np
 """
     num : number of visit time
     once_num : nothing 
@@ -30,7 +31,7 @@ class node(object):
 
 
 class search_tree(object):
-    def __init__(self, mcst, q_id, max_depth, l_passages, p_words_list, ref_answer, vocab):
+    def __init__(self, mcst, q_id, p_words_list, max_depth, max_search_time, beta, l_passages, ref_answer, vocab):
         self.tree = Tree()
         self.q_id = q_id
         self.tree.create_node(identifier='question_' + str(q_id), data=node())
@@ -38,39 +39,37 @@ class search_tree(object):
         root_node.data.num = 1.0
         self.node_map = {}
         self.l_passages = l_passages
-        self.p_words_list = p_words_list
         self.ref_answer = ref_answer
+        self.max_search_time = max_search_time
         self.count = 0.0
         self.carpe_diem = mcst
         self.max_depth = max_depth
+        self.beta = beta
         self.vocab = vocab
+        self.p_words_list = p_words_list
         self.expand(self.tree.get_node(self.tree.root))
 
 
     def expand(self, leaf_node):
-        print '---expand: '
+        #print '---------------------- start expand: -----------------------'
+        time_tree_start = time.time()
         words_list = leaf_node.data.word
-        print 'word_list:'
-        print words_list
+        # print 'word_list:'
+        # print words_list
         p_word_id, p_pred = self.carpe_diem.get_policy(words_list, self.l_passages)
-        print 'candidate_id: '
-        print p_word_id
+        # print 'candidate_id: '
+        # print np.shape(p_word_id)
+        # print 'p_pred'
+        # print np.shape(p_pred)
         for word in p_word_id:
-            #print word
-            #print 'self.node_map: ' + str(self.node_map)
-            #print 'len of self.node_map: '+ str(len(self.node_map))
             self.node_map[' '.join(words_list + [str(word)])] = len(self.node_map)
-            #print 'yi dun cao zuo'
-            #print 'self.node_map: ' + str(self.node_map)
-            #print 'len of self.node_map: ' + str(len(self.node_map))
             new_node = node()
             new_node.word = words_list + [str(word)]
             #print new_node.word
             new_node.p = p_pred[p_word_id.index(word)]
-            new_node.Q = self.carpe_diem.value_function(words_list)[0][0]
-            #print  new_node.p
             self.tree.create_node(identifier=self.node_map[' '.join(new_node.word)], data=new_node,
                                   parent=leaf_node.identifier)
+        #print ('&&&&&&&&&&&&&&& tree expand time = %3.2f s &&&&&&&&&&&&' % (time.time() - time_tree_start))
 
     def update(self, node_list, value):
         #print '----update'
@@ -86,16 +85,15 @@ class search_tree(object):
         has_visit_num = tmp_node.data.num - 1
         self.count = has_visit_num
 
-        if int(self.carpe_diem.search_time - has_visit_num) > 0:
-            start_node_search_time = int(self.carpe_diem.search_time - has_visit_num)
-            #print 'start_node_search_time: '
-            #print start_node_search_time
+        if int(self.max_search_time - has_visit_num) > 0:
+            start_node_search_time = int(self.max_search_time - has_visit_num)
         else:
             start_node_search_time = 0
-        #print 'print str(self.l_passages): '
-        #print str(self.l_passages - 1)
 
-        for time in range(start_node_search_time):
+        for tm in range(start_node_search_time):
+            if tm%10 == 0:
+                batch_start_time = time.time()
+                #print ('search time',tm)
             search_list = [start_node_id]
             tmp_node = self.tree.get_node(start_node_id)
             #print 'search time :'+ str(time)
@@ -105,10 +103,7 @@ class search_tree(object):
                 max_id = -1
                 for child_id in tmp_node.fpointer:
                     child_node = self.tree.get_node(child_id)
-                    #score = child_node.data.p
-                    #print "child_node.data.p: " + str(child_node.data.p)
-                    #print "tmp_node.data.num: " + str(tmp_node.data.num)
-                    score = self.carpe_diem.beta * child_node.data.p * (
+                    score = self.beta * child_node.data.p * (
                     (tmp_node.data.num) ** 0.5 / (1 + child_node.data.num))
 
                     #print 'child_node.data.Q: '
@@ -126,29 +121,20 @@ class search_tree(object):
                 search_list.append(max_id)
                 tmp_node = self.tree.get_node(max_id)
 
-            #query_id_mcts = self.tree.root.split('_')[1]
-            #print query_id_mcts
-            #print 'end'
-            #print 'tmp_node.data.word'
-            #print tmp_node.data.word[-1]
-
-
-            #end
             #if tmp_node.data.word[-1] == str(self.l_passages-1):
             if tmp_node.data.word[-1] == str(self.l_passages - 1):
-                v = 0
                 pred_answer = tmp_node.data.word
-                print 'pred_answer: '
-                print pred_answer
-                print 'listSelectedSet'
+                # print 'pred_answer: '
+                # print pred_answer
+                # print 'listSelectedSet'
                 listSelectedSet_words = []
                 listSelectedSet = map(eval, pred_answer)
-                print listSelectedSet
+                #print listSelectedSet
                 for idx in listSelectedSet:
                     listSelectedSet_words.append(self.p_words_list[idx])
-                print 'str123'
+                #print 'pred_answer '
                 str123 = self.vocab.recover_from_ids(listSelectedSet_words, 0)
-                print str123
+                #print str123
                 pred_answers = []
 
                 pred_answers.append({'question_id': [self.q_id],
@@ -163,18 +149,84 @@ class search_tree(object):
                         if len(ref['answers']) > 0:
                             pred_dict[question_id] = normalize(pred['answers'])
                             ref_dict[question_id] = normalize(ref['answers'])
-                            print '========compare in tree======='
-                            print pred_dict[question_id]
-                            print '----------------------'
-                            print ref_dict[question_id]
+                            # print '========compare in tree======='
+                            # print pred_dict[question_id]
+                            # print '----------------------'
+                            # print ref_dict[question_id]
                     bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
                 else:
                     bleu_rouge = None
-                print 'bleu_rouge'
-                print bleu_rouge
+                # print 'last words ++++++++++++++ '
+                # print bleu_rouge
                 v = bleu_rouge['Bleu-4']
             else:
                 v = self.carpe_diem.value_function(tmp_node.data.word)[0][0]
+                #print 'v: '
+                #print v
+
+            self.update(search_list, v)
+            self.count += 1
+
+            if tmp_node.is_leaf() and (self.tree.depth(tmp_node) < self.max_depth) and tmp_node.data.word[-1] != str(self.l_passages-1):
+                self.expand(tmp_node)
+
+            # if tm %10 == 0:
+            #     print ('==================== search 10  time = %3.2f s ====================' % (time.time() - batch_start_time))
+            ###########
+            '''
+            if time % 100 == 0:
+                tmp_policy = self.get_ppolicy(start_node_id)
+                print tmp_policy.values()
+                print sum(tmp_policy.values())
+                print time
+            '''
+            #print tmp_node.data.word
+            #print '------finish search '
+        #print '===== finish all search ======'
+
+    def search_eval(self, start_node_id):
+        #print '----tree search'
+        tmp_node = self.tree.get_node(start_node_id)
+        #print tmp_node.data.num
+        has_visit_num = tmp_node.data.num - 1
+        self.count = has_visit_num
+
+        if int(self.max_search_time - has_visit_num) > 0:
+            start_node_search_time = int(self.max_search_time - has_visit_num)
+        else:
+            start_node_search_time = 0
+
+        for time in range(start_node_search_time):
+            #print ('search time',time)
+            search_list = [start_node_id]
+            tmp_node = self.tree.get_node(start_node_id)
+            #print 'search time :'+ str(time)
+
+            while not tmp_node.is_leaf():
+                max_score = float("-inf")
+                max_id = -1
+                for child_id in tmp_node.fpointer:
+                    child_node = self.tree.get_node(child_id)
+                    score = self.beta * child_node.data.p * (
+                    (tmp_node.data.num) ** 0.5 / (1 + child_node.data.num))
+
+                    #print 'child_node.data.Q: '
+                    #print child_node.data.Q
+                    score += child_node.data.Q
+
+                    #print 'score: '
+                    #print score
+
+                    #print '**************'
+
+                    if score > max_score:
+                        max_id = child_id
+                        max_score = score
+                search_list.append(max_id)
+                tmp_node = self.tree.get_node(max_id)
+
+            #if tmp_node.data.word[-1] == str(self.l_passages-1):
+            v = self.carpe_diem.value_function(tmp_node.data.word)[0][0]
                 #print 'v: '
                 #print v
 
@@ -195,8 +247,6 @@ class search_tree(object):
             #print tmp_node.data.word
             #print '------finish search '
         #print '===== finish all search ======'
-
-
 
     def take_action(self, start_node_id):
         #print '----take action: '

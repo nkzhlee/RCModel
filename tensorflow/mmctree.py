@@ -117,7 +117,7 @@ class PSCHTree(object):
     """
     python -u run.py --train --algo MCST --epochs 1 --gpu 2 --max_p_len 2000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
     nohup python -u run.py --train --algo BIDAF --epochs 10  --train_files ../data/demo/trainset/test_5 --dev_files  ../data/demo/devset/test_5 --test_files ../data/demo/test/search.test.json >test5.txt 2>&1 &
-    nohup python -u run.py --train --algo MCST --epochs 100 --gpu 3 --max_p_len 1000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_313.txt 2>&1 &
+    nohup python -u run.py --train --algo MCST --epochs 10 --gpu 3 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_.txt 2>&1 &
 
 
     """
@@ -309,7 +309,7 @@ class PSCHTree(object):
 
     def feed_in_batch(self, tree_batch, parallel_size, feed_dict):
         self.tree_batch = tree_batch
-        self.para_size = parallel_size
+        self.para_size = len(self.tree_batch['tree_ids'])
         self.batch_size = len(self.tree_batch['tree_ids'])
         # self.feed_dict = feed_dict
 

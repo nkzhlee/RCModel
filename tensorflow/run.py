@@ -1,19 +1,4 @@
 # -*- coding:utf8 -*-
-# ==============================================================================
-# Copyright 2017 Baidu.com, Inc. All Rights Reserved
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
 """
 This module prepares and runs the whole system.
 
@@ -21,7 +6,7 @@ python run.py --prepare --train_files ../data/preprocessed/trainset/search/searc
 
 python run.py --prepare --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json
 
-nohup python -u run.py --train --algo BIDAF --epochs 300  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >BIDAF_log.txt 2>&1 &
+nohup python -u run.py --train --algo BIDAF --epochs 300  --gpu 0 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >BIDAF_log.txt 2>&1 &
 
 nohup python -u run.py --train --algo MLSTM --epochs 3000  --train_files ../data/preprocessed/trainset/search/search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/seg/search/test/search.test.json >MLSTM_log.txt 2>&1 &
 
@@ -44,6 +29,28 @@ nohup python -u run.py --train --algo MCST --epochs 30  --hidden_size 150 --batc
 nohup python -u run.py --train --algo MCST --epochs 50  --hidden_size 150 --batch_size 1 --gpu 2 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json >exp_50_500_10_log.txt 2>&1 &
 
 nohup python -u run.py --train --algo MCST --epochs 20  --hidden_size 150 --batch_size 1 --gpu 3 --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/testset/search.test.json >exp_20_100_20_log.txt 2>&1 &
+
+
+
+base line :
+# demo :
+
+python run.py --prepare  
+
+nohup python -u run.py --train --algo BIDAF --epochs 20 --gpu 0 >BIDAF_demo_log.txt 2>&1 &
+
+nohup python -u run.py --train --algo MLSTM --epochs 20 --gpu 0 >MLSTM_demo_log.txt 2>&1 &
+
+python run.py --evaluate --algo BIDAF
+
+python run.py --predict --algo BIDAF --test_files ../data/demo/devset/search.dev.json 
+
+#raw data
+python run.py --prepare --train_files ../data/preprocessed/trainset/search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/preprocessed/testset/search.test.json
+
+nohup python -u run.py --train --algo BIDAF --epochs 100 --gpu 0 ../data/preprocessed/trainset/search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/preprocessed/testset/search.test.json >BIDAF_log.txt 2>&1 &
+nohup python -u run.py --train --algo MLSTM --epochs 100 --gpu 0 ../data/preprocessed/trainset/search.train.json --dev_files  ../data/preprocessed/devset/search.dev.json --test_files ../data/preprocessed/testset/search.test.json >MLSTM_log.txt 2>&1 &
+
 """
 
 import sys

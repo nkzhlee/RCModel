@@ -1,6 +1,8 @@
 models/
 preprocessed/
 raw/
+data/
+
 *.pyc
 vocab.search
 local

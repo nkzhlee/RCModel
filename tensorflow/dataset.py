@@ -274,8 +274,6 @@ class BRCDataset(object):
         else:
             raise NotImplementedError('No data set named as {}'.format(set_name))
         data_size = len(data)
-        print 'data_size'
-        print data_size
         indices = np.arange(data_size)
         if shuffle:
             np.random.shuffle(indices)
@@ -331,7 +329,7 @@ class BRCDataset(object):
         """
         #print 'dynamic _padding...'
         #print 'pad_id' + str(pad_id)
-        pad_p_len = min(self.max_p_len, max(batch_data['passage_length'])) + 1
+        pad_p_len = min(self.max_p_len, max(batch_data['passage_length'])) #???
         #print 'pad_p_len' + str(pad_p_len)
         pad_q_len = min(self.max_q_len, max(batch_data['question_length']))
         #print 'pad_q_len' + str(pad_q_len)
