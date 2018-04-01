@@ -112,8 +112,12 @@ def parse_args():
                                 help='max length of passage')
     model_settings.add_argument('--max_q_len', type=int, default=60,
                                 help='max length of question')
-    model_settings.add_argument('--max_a_len', type=int, default=200,
+    model_settings.add_argument('--max_a_len', type=int, default=20,
                                 help='max length of answer')
+    model_settings.add_argument('--search_time', type=int, default=3000,
+                                help='search time of mcts')
+    model_settings.add_argument('--beta', type=float, default=100,
+                                help=' parameter that balances police and value')
 
     path_settings = parser.add_argument_group('path settings')
     path_settings.add_argument('--train_files', nargs='+',
@@ -137,6 +141,8 @@ def parse_args():
                                help='the dir to write tensorboard summary')
     path_settings.add_argument('--log_path',
                                help='path of the log file. If not set, logs are printed to console')
+    path_settings.add_argument('--draw_path', default='.log/',
+                               help='tensorboard')
     return parser.parse_args()
 
 

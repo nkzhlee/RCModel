@@ -24,6 +24,7 @@ class TFGraph(object):
         self.tf_name = name
         self.logger = logging.getLogger("brc")
         self.vocab = vocab
+        self.draw_path = args.draw_path
 
         # basic config
         self.algo = args.algo
@@ -51,6 +52,7 @@ class TFGraph(object):
         self._action_frist()
         self._action()
         self._compute_loss()
+        self._draw_rfboard()
         # param_num = sum([np.prod(self.sess.run(tf.shape(v))) for v in self.all_params])
         # self.logger.info('There are {} parameters in the model'.format(param_num))
         self.saver = tf.train.Saver()
@@ -76,6 +78,9 @@ class TFGraph(object):
         self.selected_id_list = tf.placeholder(tf.int32, [None])
         self.policy = tf.placeholder(tf.float32, [1, None])  # policy
         self.v = tf.placeholder(tf.float32, [1, 1])  # value
+        self.result = tf.placeholder(tf.float32, None)
+        self.rouge = tf.placeholder(tf.float32, None)
+        self.bleu1 = tf.placeholder(tf.float32, None)
 
     def _embed(self):
         """
@@ -192,8 +197,17 @@ class TFGraph(object):
         self.optimizer_first = tf.train.AdagradOptimizer(self.learning_rate).minimize(self.loss_first)
         self.loss = tf.contrib.losses.mean_squared_error(self.v, self.value) - tf.matmul(self.policy, tf.reshape(
             tf.log(tf.clip_by_value(self.prob, 1e-30, 1.0)), [-1, 1]))
+        #self.first_loss_summary = tf.summary.scalar('first_loss', tf.reduce_mean(self.loss_first))
+
         self.optimizer = tf.train.AdagradOptimizer(self.learning_rate).minimize(self.loss)
         self.all_params = tf.trainable_variables()
+    def _draw_rfboard(self):
+        self.loss_summary = tf.summary.scalar('loss', tf.reduce_mean(self.result))
+        self.rouge_summary = tf.summary.scalar('rb', tf.reduce_mean(self.rouge))
+        with tf.name_scope('summary'):
+            self.merged = tf.summary.merge_all()
+            self.train_writer = tf.summary.FileWriter(self.draw_path+'/train')
+            self.test_writer = tf.summary.FileWriter(self.draw_path+'/test')
 
     def _create_train_op(self):
         """
@@ -217,14 +231,41 @@ class TFGraph(object):
                           self.q_length: q_length,
                           self.dropout_keep_prob: dropout_keep_prob}
     def cal_first_loss(self, policy, input_v):
+        run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         feed_dict = dict(self.feed_dict.items() + {self.policy: [policy], self.v: [[input_v]]}.items())
         _, loss = self.sess.run([self.optimizer_first, self.loss_first], feed_dict=feed_dict)
+        # summary, _, loss = self.sess.run([self.merged, self.optimizer_first, self.loss_first] , options=run_options,feed_dict=feed_dict)
+        # self.train_writer.add_summary(summary)
         return loss
-    def cal_loss(self, policy, input_v,selected_id_list,c):
+    def cal_loss(self, policy, input_v,selected_id_list,c, prob_id):
         feed_dict = dict(self.feed_dict.items() + {self.selected_id_list: selected_id_list, self.candidate_id: c,
                                       self.policy: [policy],self.v: [[input_v]]}.items())
-        _, loss = self.sess.run([self.optimizer, self.loss], feed_dict=feed_dict)
+        _, loss = self.sess.run([ self.optimizer, self.loss], feed_dict=feed_dict)
+        #summary, _, loss = self.sess.run([self.merged, self.optimizer, self.loss], feed_dict=feed_dict)
+        #self.train_writer.add_summary(summary)
         return loss
+    def cal_first_loss_eval(self, policy, input_v):
+        feed_dict = dict(self.feed_dict.items() + {self.policy: [policy], self.v: [[input_v]]}.items())
+        loss = self.sess.run(self.loss_first, feed_dict=feed_dict)
+        # summary, loss = self.sess.run( [self.merged, self.loss_first], feed_dict=feed_dict)
+        # self.test_writer.add_summary(summary)
+        return loss
+    def cal_loss_eval(self, policy, input_v,selected_id_list,c,prob_id):
+        feed_dict = dict(self.feed_dict.items() + {self.selected_id_list: selected_id_list, self.candidate_id: c,
+                                      self.policy: [policy],self.v: [[input_v]]}.items())
+        loss = self.sess.run( self.loss, feed_dict=feed_dict)
+        # summary, loss = self.sess.run( [self.merged,self.loss], feed_dict=feed_dict)
+        # self.test_writer.add_summary(summary,prob_id)
+        return loss
+    def draw_train(self,result, rouge, step):
+        feed_dict = dict({self.result: result, self.rouge: rouge})
+        summary = self.sess.run(self.merged, feed_dict = feed_dict)
+        self.train_writer.add_summary(summary, step)
+    def draw_test(self,result, rouge, step):
+        feed_dict = dict({self.result: result, self.rouge: rouge})
+        summary = self.sess.run(self.merged, feed_dict = feed_dict)
+        self.test_writer.add_summary(summary, step)
     def run_session_shape(self):
         shape_a, shape_b = self.sess.run([self.shape_a, self.shape_b], feed_dict=self.feed_dict)
         return shape_a,shape_b
+

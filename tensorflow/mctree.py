@@ -12,6 +12,9 @@ import copy
 from utils import normalize
 from utils import compute_bleu_rouge
 import time
+import types
+import copy_reg
+import Queue
 import numpy as np
 """
     num : number of visit time
@@ -20,7 +23,6 @@ import numpy as np
     p : policy score of now-node 
     doc : doc episode list of now-state 
 """
-
 
 class node(object):
     def __init__(self):

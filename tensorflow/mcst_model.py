@@ -18,11 +18,15 @@
 This module implements the reading comprehension models based on:
 Reinforcement Learning and Monte-Carlo Tree Search
 Note that we use Pointer Network for the decoding stage of both models.
+
 """
 
 import os
 import time
 import logging
+import types
+import copy_reg
+import Queue
 import json
 from mctree import search_tree
 import numpy as np
@@ -33,9 +37,10 @@ from layers.basic_rnn import rnn
 from layers.match_layer import MatchLSTMLayer
 from layers.match_layer import AttentionFlowMatchLayer
 from layers.pointer_net import PointerNetDecoder
-from pmctree import PSCHTree
 from search import SearchTree
+
 from tfgraph import TFGraph
+
 
 class MCSTmodel(object):
     """
@@ -60,11 +65,10 @@ class MCSTmodel(object):
         self.max_p_num = args.max_p_num
         self.max_p_len = args.max_p_len
         self.max_q_len = args.max_q_len
-        #self.max_a_len = args.max_a_len
-        self.max_a_len = 10
+        self.max_a_len = args.max_a_len
         #test paras
-        self.search_time = 300
-        self.beta = 100.0
+        self.search_time = args.search_time
+        self.beta = args.beta
 
         # the vocab
         self.vocab = vocab
@@ -303,7 +307,9 @@ class MCSTmodel(object):
         return 0
         #return loss
 
-    def _train_epoch(self, train_batches, dropout_keep_prob):
+
+
+    def _train_epoch(self, step , train_batches, dropout_keep_prob):
         """
         Trains the model for a single epoch.
         Args:
@@ -312,11 +318,15 @@ class MCSTmodel(object):
         """
         total_loss = 0
         num_loss = 0
-        for bitx, batch in enumerate(train_batches, 1):
-            print '------ Batch Question: ' + str(bitx)
+        batch_start_time = 0
+        for fbitx, batch in enumerate(train_batches, 1):
+            step += 1
+            if fbitx % 10 == 0:
+                print '------ Batch Question: ' + str(fbitx)
+                batch_start_time = time.time()
             trees = []
             batch_tree_set = []
-            batch_start_time = time.time()
+
             batch_size = len(batch['question_ids'])
             #print ('batch_size)', batch_size)
             for bitx in range(batch_size):
@@ -336,13 +346,21 @@ class MCSTmodel(object):
                 batch_tree = SearchTree(self.tfg, tree, self.max_a_len, self.search_time, self.beta, dropout_keep_prob)
                 batch_tree_set.append(batch_tree)
 
+
             # for every data in batch do training process
             for idx, batch_tree in enumerate(batch_tree_set,1):
+                loss = batch_tree.one_train(step)
+                if fbitx % 10 == 0:
+                    print '++++++++++++ loss is ' + str(loss)
                 num_loss += 1
-                total_loss += batch_tree.one_train()
-            batch_end_time = time.time()
-            print ('&&&&&&&&&&&&&&& batch process time = %3.2f s &&&&&&&&&&&&' % (batch_end_time - batch_start_time))
-        return 1.0 * total_loss / num_loss
+                total_loss += loss
+
+
+            if fbitx % 10 == 0:
+                batch_end_time = time.time()
+                print ('&&&&&&&&&&&&&&& batch process time = %3.2f s &&&&&&&&&&&&' % (batch_end_time - batch_start_time))
+                batch_start_time = time.time()
+        return 1.0 * total_loss / num_loss, step
 
     def train(self, data, epochs, batch_size, save_dir, save_prefix,
               dropout_keep_prob=1.0, evaluate=True):
@@ -361,6 +379,8 @@ class MCSTmodel(object):
         # print 'pad_id is '
         # print pad_id
         max_bleu_4 = 0
+        train_step = 0
+        test_step = 0
         #pmct = PSCHTree(self.args, self.vocab)
         for epoch in range(1, epochs + 1):
             self.logger.info('Training the model for epoch {}'.format(epoch))
@@ -370,7 +390,7 @@ class MCSTmodel(object):
             # mctree.search()
 
             #result = self._train_epoch_new(pmct, train_batches, batch_size, dropout_keep_prob)
-            result = self._train_epoch(train_batches, dropout_keep_prob)
+            result, train_step = self._train_epoch(train_step, train_batches, dropout_keep_prob)
             epoch_end_time = time.time()
             self.logger.info('Average train loss for epoch {} is {}'.format(epoch, result))
             #self.save(save_dir, save_prefix + '_' + str(epoch))
@@ -380,7 +400,7 @@ class MCSTmodel(object):
                 self.logger.info('Evaluating the model after epoch {}'.format(epoch))
                 if data.dev_set is not None:
                     eval_batches = data.gen_batches('dev', batch_size, pad_id, shuffle=False)
-                    bleu_rouge = self.evaluate(eval_batches,dropout_keep_prob)
+                    bleu_rouge,test_step = self.evaluate(test_step, eval_batches,dropout_keep_prob)
             #         ref_answers, pre_answers = [],[]
             #         for bitx, batch in enumerate(eval_batches, 1):
             #             print '------ Batch Question: ' + str(bitx)
@@ -420,7 +440,7 @@ class MCSTmodel(object):
 
 
 
-    def evaluate(self, eval_batches, dropout_keep_prob,result_dir=None, result_prefix=None, save_full_info=False):
+    def evaluate(self, step, eval_batches, dropout_keep_prob,result_dir=None, result_prefix=None, save_full_info=False):
         """
         Evaluates the model performance on eval_batches and results are saved if specified
         Args:
@@ -432,7 +452,8 @@ class MCSTmodel(object):
         """
         pred_answers, ref_answers = [], []
         total_loss, total_num = 0, 0
-        for b_itx, batch in enumerate(eval_batches):
+        for b_itx, batch in enumerate(eval_batches, 1):
+            step += 1
             print '------ evaluate Batch Question: ' + str(b_itx)
             # ref_answers.append({'question_id': batch['question_ids'],
             #                     'question_type': batch['question_types'],
@@ -472,15 +493,15 @@ class MCSTmodel(object):
 
             # for every data in batch do training process
             for idx, batch_tree in enumerate(batch_tree_set, 1):
-                pred_answer = batch_tree.one_evaluate()
+                pred_answer, avar_loss = batch_tree.one_evaluate(step)
                 pred_answers.append(pred_answer)
         # print 'ref_answers: '
         # print ref_answers
 
         # print 'ref_answers: '
         # print ref_answers
-        # print 'pred_answer: '
-        # print pred_answers
+        print 'test avar_loss: '
+        print avar_loss
         if len(ref_answers) > 0:
             pred_dict, ref_dict = {}, {}
             for pred, ref in zip(pred_answers, ref_answers):
@@ -502,7 +523,7 @@ class MCSTmodel(object):
             bleu_rouge = None
         value_with_mcts = bleu_rouge
         print value_with_mcts
-        return value_with_mcts
+        return value_with_mcts, step
 
     def find_best_answer(self, sample, start_prob, end_prob, padded_p_len):
         """

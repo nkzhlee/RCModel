@@ -325,10 +325,10 @@ class RCModel(object):
                                          'answers': sample['answers'],
                                          'entity_answers': [[]],
                                          'yesno_answers': []})
-        # print 'ref_answers: '
-        # print ref_answers
-        # print 'pred_answers: '
-        # print pred_answers
+        print 'ref_answers: '
+        print ref_answers
+        print 'pred_answers: '
+        print pred_answers
         if result_dir is not None and result_prefix is not None:
             result_file = os.path.join(result_dir, result_prefix + '.json')
             with open(result_file, 'w') as fout:
