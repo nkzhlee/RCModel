@@ -33,7 +33,7 @@ class node(object):
 
 
 class search_tree(object):
-    def __init__(self, mcst, q_id, p_words_list, max_depth, max_search_time, beta, l_passages, ref_answer, vocab):
+    def __init__(self, mcst, q_id, p_words_list, max_depth, max_search_time, beta,m_value, l_passages, ref_answer, vocab):
         self.tree = Tree()
         self.q_id = q_id
         self.tree.create_node(identifier='question_' + str(q_id), data=node())
@@ -41,6 +41,7 @@ class search_tree(object):
         root_node.data.num = 1.0
         self.node_map = {}
         self.l_passages = l_passages
+        self.m_value = m_value
         self.ref_answer = ref_answer
         self.max_search_time = max_search_time
         self.count = 0.0
@@ -160,7 +161,11 @@ class search_tree(object):
                     bleu_rouge = None
                 # print 'last words ++++++++++++++ '
                 # print bleu_rouge
-                v = bleu_rouge['Bleu-4']
+                v = input_v = bleu_rouge['Rouge-L'] * self.m_value['Rouge-L'] \
+                  + bleu_rouge['Bleu-4'] * self.m_value['Bleu-4']\
+                  + bleu_rouge['Bleu-1'] * self.m_value['Bleu-1']\
+                  + bleu_rouge['Bleu-3'] * self.m_value['Bleu-3']\
+                  + bleu_rouge['Bleu-2'] * self.m_value['Bleu-2']
             else:
                 v = self.carpe_diem.value_function(tmp_node.data.word)[0][0]
                 #print 'v: '

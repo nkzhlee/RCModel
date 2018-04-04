@@ -118,6 +118,16 @@ def parse_args():
                                 help='search time of mcts')
     model_settings.add_argument('--beta', type=float, default=100,
                                 help=' parameter that balances police and value')
+    model_settings.add_argument('--Bleu4', type=int, default=0,
+                                help='weight of Bleu-4')
+    model_settings.add_argument('--RougeL', type=int, default=1,
+                                help='weigh of Rouge-L')
+    model_settings.add_argument('--Bleu1', type=int, default=1,
+                                help='weight of Bleu-1')
+    model_settings.add_argument('--Bleu2', type=int, default=1,
+                                help='weight of Bleu-2')
+    model_settings.add_argument('--Bleu3', type=int, default=1,
+                                help='weight of Bleu-3')
 
     path_settings = parser.add_argument_group('path settings')
     path_settings.add_argument('--train_files', nargs='+',

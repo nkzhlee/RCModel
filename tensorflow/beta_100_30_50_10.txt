@@ -1,0 +1,627 @@
+dyld: warning, LC_RPATH $ORIGIN/../../_solib_darwin_x86_64/_U_S_Stensorflow_Spython_C_Upywrap_Utensorflow_Uinternal.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Slayers_Cpython_Sops_S_Usparse_Ufeature_Ucross_Uop.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/layers/python/ops/_sparse_feature_cross_op.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sinput_Upipeline_Cpython_Sops_S_Uinput_Upipeline_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/input_pipeline/python/ops/_input_pipeline_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Srnn_Cpython_Sops_S_Ugru_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/rnn/python/ops/_gru_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Srnn_Cpython_Sops_S_Ulstm_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/rnn/python/ops/_lstm_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sfactorization_Cpython_Sops_S_Uclustering_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/factorization/python/ops/_clustering_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sfactorization_Cpython_Sops_S_Ufactorization_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/factorization/python/ops/_factorization_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stpu_Cpython_Sops_S_Utpu_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tpu/python/ops/_tpu_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Scudnn_Urnn_Cpython_Sops_S_Ucudnn_Urnn_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/cudnn_rnn/python/ops/_cudnn_rnn_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Simage_Cpython_Sops_S_Udistort_Uimage_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/image/python/ops/_distort_image_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Simage_Cpython_Sops_S_Uimage_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/image/python/ops/_image_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Simage_Cpython_Sops_S_Usingle_Uimage_Urandom_Udot_Ustereograms.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/image/python/ops/_single_image_random_dot_stereograms.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Smemory_Ustats_Cpython_Sops_S_Umemory_Ustats_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/memory_stats/python/ops/_memory_stats_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Snccl_Cpython_Sops_S_Unccl_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/nccl/python/ops/_nccl_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Speriodic_Uresample_Cpython_Sops_S_Uperiodic_Uresample_Uop.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/periodic_resample/python/ops/_periodic_resample_op.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sresampler_Cpython_Sops_S_Uresampler_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/resampler/python/ops/_resampler_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sseq2seq_Cpython_Sops_S_Ubeam_Usearch_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/seq2seq/python/ops/_beam_search_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Utensor_Uforest_Uops.so___Utensorflow_Scontrib_Stensor_Uforest in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_tensor_forest_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Utensor_Uforest_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_tensor_forest_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Umodel_Uops.so___Utensorflow_Scontrib_Stensor_Uforest in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_model_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Umodel_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_model_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Ustats_Uops.so___Utensorflow_Scontrib_Stensor_Uforest in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_stats_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Stensor_Uforest_Cpython_Sops_S_Ustats_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/tensor_forest/python/ops/_stats_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Sdata_C_Uprefetching_Uops.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/data/python/ops/../../_prefetching_ops.so being ignored in restricted program because it is a relative path
+dyld: warning, LC_RPATH $ORIGIN/../../../../../_solib_darwin_x86_64/_U_S_Stensorflow_Scontrib_Slite_Stoco_Spython_C_Utensorflow_Uwrap_Utoco.so___Utensorflow in /Library/Python/2.7/site-packages/tensorflow/contrib/lite/toco/python/_tensorflow_wrap_toco.so being ignored in restricted program because it is a relative path
+2018-04-03 11:16:43,653 - brc - INFO - Running with args : Namespace(Bleu1=0, Bleu2=1, Bleu3=0, Bleu4=0, RougeL=0, algo='MCST', batch_size=1, beta=100.0, brc_dir='../data/baidu', dev_files=['../data/demo/devset/search.dev.json'], draw_path='./log/1', dropout_keep_prob=1, embed_size=300, epochs=30, evaluate=False, gpu='0', hidden_size=150, learning_rate=0.001, log_path=None, max_a_len=10, max_p_len=10000, max_p_num=5, max_q_len=60, model_dir='../data/models/', optim='sgd', predict=False, prepare=False, result_dir='../data/results/', search_time=50, summary_dir='../data/summary/', test_files=['../data/demo/test/search.test.json', '../data/demo/test/search.test.json'], train=True, train_files=['../data/demo/trainset/search.train.json'], vocab_dir='../data/vocab/', weight_decay=0)
+2018-04-03 11:16:43,653 - brc - INFO - Load data_set and vocab...
+2018-04-03 11:16:44,336 - brc - INFO - Train set size: 95 questions.
+2018-04-03 11:16:44,630 - brc - INFO - Dev set size: 100 questions.
+2018-04-03 11:16:44,630 - brc - INFO - Converting text into ids...
+2018-04-03 11:16:44,697 - brc - INFO - Initialize the model...
+2018-04-03 11:16:44,697 - brc - INFO - Use MCST Model to train...
+2018-04-03 11:16:44,697 - brc - INFO - Training MCST model...
+WARNING:tensorflow:<tensorflow.python.ops.rnn_cell_impl.BasicLSTMCell object at 0x11a7d4950>: Using a concatenated state is slower and will soon be deprecated.  Use state_is_tuple=True.
+WARNING:tensorflow:From /Users/zhaohuilee/coding/DuReader/tensorflow/pmctree.py:1553: calling softmax (from tensorflow.python.ops.nn_ops) with dim is deprecated and will be removed in a future version.
+Instructions for updating:
+dim is deprecated, use axis instead
+WARNING:tensorflow:From /Users/zhaohuilee/coding/DuReader/tensorflow/pmctree.py:1560: mean_squared_error (from tensorflow.contrib.losses.python.losses.loss_ops) is deprecated and will be removed after 2016-12-30.
+Instructions for updating:
+Use tf.losses.mean_squared_error instead.
+WARNING:tensorflow:From /Library/Python/2.7/site-packages/tensorflow/contrib/losses/python/losses/loss_ops.py:541: compute_weighted_loss (from tensorflow.contrib.losses.python.losses.loss_ops) is deprecated and will be removed after 2016-12-30.
+Instructions for updating:
+Use tf.losses.compute_weighted_loss instead.
+WARNING:tensorflow:From /Library/Python/2.7/site-packages/tensorflow/contrib/losses/python/losses/loss_ops.py:152: add_loss (from tensorflow.contrib.losses.python.losses.loss_ops) is deprecated and will be removed after 2016-12-30.
+Instructions for updating:
+Use tf.losses.add_loss instead.
+/Library/Python/2.7/site-packages/tensorflow/python/ops/gradients_impl.py:97: UserWarning: Converting sparse IndexedSlices to a dense Tensor of unknown shape. This may consume a large amount of memory.
+  "Converting sparse IndexedSlices to a dense Tensor of unknown shape. "
+2018-04-03 11:16:54,506 - brc - INFO - Training the model for epoch 1
+------ Batch Question: 1
+('Max parallel processes size: ', 1)
+('has init ', 91160)
+('Answer_len', 0)
+('search time', 0)
+------- search sub tree :91160---------
+Node(tag=488, identifier=488, data=<sub_tree.node object at 0x11862f550>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725415.6------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 0.93 s &&&&&&&&&&&&
+('search time', 1)
+------- search sub tree :91160---------
+Node(tag=734, identifier=734, data=<sub_tree.node object at 0x1187ed710>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725416.51------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 0.81 s &&&&&&&&&&&&
+('search time', 2)
+------- search sub tree :91160---------
+Node(tag=752, identifier=752, data=<sub_tree.node object at 0x1188bf8d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725417.73------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.21 s &&&&&&&&&&&&
+('search time', 3)
+------- search sub tree :91160---------
+Node(tag=487, identifier=487, data=<sub_tree.node object at 0x1187680d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725418.86------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.12 s &&&&&&&&&&&&
+('search time', 4)
+------- search sub tree :91160---------
+Node(tag=637, identifier=637, data=<sub_tree.node object at 0x118866790>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725419.82------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 0.97 s &&&&&&&&&&&&
+('search time', 5)
+------- search sub tree :91160---------
+Node(tag=751, identifier=751, data=<sub_tree.node object at 0x119096a50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725420.94------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.11 s &&&&&&&&&&&&
+('search time', 6)
+------- search sub tree :91160---------
+Node(tag=365, identifier=365, data=<sub_tree.node object at 0x11f5ea890>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725422.02------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.08 s &&&&&&&&&&&&
+('search time', 7)
+------- search sub tree :91160---------
+Node(tag=458, identifier=458, data=<sub_tree.node object at 0x118829d50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725423.5------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.51 s &&&&&&&&&&&&
+('search time', 8)
+------- search sub tree :91160---------
+Node(tag=521, identifier=521, data=<sub_tree.node object at 0x118a556d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725425.13------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.60 s &&&&&&&&&&&&
+('search time', 9)
+------- search sub tree :91160---------
+Node(tag=490, identifier=490, data=<sub_tree.node object at 0x119374290>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725426.95------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.82 s &&&&&&&&&&&&
+('search time', 10)
+------- search sub tree :91160---------
+Node(tag=756, identifier=756, data=<sub_tree.node object at 0x119903e50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725428.57------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.64 s &&&&&&&&&&&&
+('search time', 11)
+------- search sub tree :91160---------
+Node(tag=736, identifier=736, data=<sub_tree.node object at 0x1187583d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725430.32------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.72 s &&&&&&&&&&&&
+('search time', 12)
+------- search sub tree :91160---------
+Node(tag=128, identifier=128, data=<sub_tree.node object at 0x1193ab950>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725432.28------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 1.99 s &&&&&&&&&&&&
+('search time', 13)
+------- search sub tree :91160---------
+Node(tag=129, identifier=129, data=<sub_tree.node object at 0x11872d310>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725434.35------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 2.07 s &&&&&&&&&&&&
+('search time', 14)
+------- search sub tree :91160---------
+Node(tag=390, identifier=390, data=<sub_tree.node object at 0x119c22e50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725437.17------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 2.80 s &&&&&&&&&&&&
+('search time', 15)
+------- search sub tree :91160---------
+Node(tag=539, identifier=539, data=<sub_tree.node object at 0x11895f2d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725439.93------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 2.76 s &&&&&&&&&&&&
+('search time', 16)
+------- search sub tree :91160---------
+Node(tag=394, identifier=394, data=<sub_tree.node object at 0x1199a20d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725442.62------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 2.70 s &&&&&&&&&&&&
+('search time', 17)
+------- search sub tree :91160---------
+Node(tag=763, identifier=763, data=<sub_tree.node object at 0x11974f7d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725445.69------------------
+&&&&&&&&&&&&&&& one tree search time = 2.92 s &&&&&&&&&&&&
+('search time', 18)
+------- search sub tree :91160---------
+Node(tag=363, identifier=363, data=<sub_tree.node object at 0x1199a22d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725449.05------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.50 s &&&&&&&&&&&&
+('search time', 19)
+------- search sub tree :91160---------
+Node(tag=723, identifier=723, data=<sub_tree.node object at 0x119b400d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725452.14------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.10 s &&&&&&&&&&&&
+('search time', 20)
+------- search sub tree :91160---------
+Node(tag=633, identifier=633, data=<sub_tree.node object at 0x119237d90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725455.65------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.51 s &&&&&&&&&&&&
+('search time', 21)
+------- search sub tree :91160---------
+Node(tag=540, identifier=540, data=<sub_tree.node object at 0x119849510>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725458.99------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.37 s &&&&&&&&&&&&
+('search time', 22)
+------- search sub tree :91160---------
+Node(tag=369, identifier=369, data=<sub_tree.node object at 0x118a439d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725462.73------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.69 s &&&&&&&&&&&&
+('search time', 23)
+------- search sub tree :91160---------
+Node(tag=392, identifier=392, data=<sub_tree.node object at 0x1187e9c10>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725466.27------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.54 s &&&&&&&&&&&&
+('search time', 24)
+------- search sub tree :91160---------
+Node(tag=737, identifier=737, data=<sub_tree.node object at 0x11c69d510>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725470.25------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 3.98 s &&&&&&&&&&&&
+('search time', 25)
+------- search sub tree :91160---------
+Node(tag=457, identifier=457, data=<sub_tree.node object at 0x1191a1c90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725474.4------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.16 s &&&&&&&&&&&&
+('search time', 26)
+------- search sub tree :91160---------
+Node(tag=328, identifier=328, data=<sub_tree.node object at 0x1196eabd0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725478.6------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.20 s &&&&&&&&&&&&
+('search time', 27)
+------- search sub tree :91160---------
+Node(tag=630, identifier=630, data=<sub_tree.node object at 0x1192e2590>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725482.93------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.32 s &&&&&&&&&&&&
+('search time', 28)
+------- search sub tree :91160---------
+Node(tag=546, identifier=546, data=<sub_tree.node object at 0x11c181690>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725487.45------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.55 s &&&&&&&&&&&&
+('search time', 29)
+------- search sub tree :91160---------
+Node(tag=735, identifier=735, data=<sub_tree.node object at 0x11c3baf90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725492.15------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.67 s &&&&&&&&&&&&
+('search time', 30)
+------- search sub tree :91160---------
+Node(tag=340, identifier=340, data=<sub_tree.node object at 0x11f5a07d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725496.84------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.74 s &&&&&&&&&&&&
+('search time', 31)
+------- search sub tree :91160---------
+Node(tag=550, identifier=550, data=<sub_tree.node object at 0x119c0f590>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725501.64------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 4.77 s &&&&&&&&&&&&
+('search time', 32)
+------- search sub tree :91160---------
+Node(tag=185, identifier=185, data=<sub_tree.node object at 0x115034350>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725506.8------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 5.15 s &&&&&&&&&&&&
+('search time', 33)
+------- search sub tree :91160---------
+Node(tag=306, identifier=306, data=<sub_tree.node object at 0x119247f50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725512.22------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 5.41 s &&&&&&&&&&&&
+('search time', 34)
+------- search sub tree :91160---------
+Node(tag=590, identifier=590, data=<sub_tree.node object at 0x119823f50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725518.03------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 5.80 s &&&&&&&&&&&&
+('search time', 35)
+------- search sub tree :91160---------
+Node(tag=598, identifier=598, data=<sub_tree.node object at 0x118832390>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725523.91------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 5.90 s &&&&&&&&&&&&
+('search time', 36)
+------- search sub tree :91160---------
+Node(tag=393, identifier=393, data=<sub_tree.node object at 0x119ba9350>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725529.75------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 5.85 s &&&&&&&&&&&&
+('search time', 37)
+------- search sub tree :91160---------
+Node(tag=594, identifier=594, data=<sub_tree.node object at 0x11bf3d5d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725535.78------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 6.01 s &&&&&&&&&&&&
+('search time', 38)
+------- search sub tree :91160---------
+Node(tag=493, identifier=493, data=<sub_tree.node object at 0x1186f7390>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725541.83------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 6.05 s &&&&&&&&&&&&
+('search time', 39)
+------- search sub tree :91160---------
+Node(tag=297, identifier=297, data=<sub_tree.node object at 0x11e334a90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725548.3------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 6.48 s &&&&&&&&&&&&
+('search time', 40)
+------- search sub tree :91160---------
+Node(tag=545, identifier=545, data=<sub_tree.node object at 0x119efb790>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725554.89------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 6.59 s &&&&&&&&&&&&
+('search time', 41)
+------- search sub tree :91160---------
+Node(tag=270, identifier=270, data=<sub_tree.node object at 0x11c70c9d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725561.8------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 6.90 s &&&&&&&&&&&&
+('search time', 42)
+------- search sub tree :91160---------
+Node(tag=364, identifier=364, data=<sub_tree.node object at 0x11e061250>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725568.71------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 6.92 s &&&&&&&&&&&&
+('search time', 43)
+------- search sub tree :91160---------
+Node(tag=222, identifier=222, data=<sub_tree.node object at 0x11e061c90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725575.91------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 7.21 s &&&&&&&&&&&&
+('search time', 44)
+------- search sub tree :91160---------
+Node(tag=281, identifier=281, data=<sub_tree.node object at 0x11c32b0d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725583.33------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 7.39 s &&&&&&&&&&&&
+('search time', 45)
+------- search sub tree :91160---------
+Node(tag=316, identifier=316, data=<sub_tree.node object at 0x1186f8650>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725591.49------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 8.18 s &&&&&&&&&&&&
+('search time', 46)
+------- search sub tree :91160---------
+Node(tag=632, identifier=632, data=<sub_tree.node object at 0x11c41bf90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725599.62------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 8.13 s &&&&&&&&&&&&
+('search time', 47)
+------- search sub tree :91160---------
+Node(tag=105, identifier=105, data=<sub_tree.node object at 0x11c482590>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725607.77------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 8.14 s &&&&&&&&&&&&
+('search time', 48)
+------- search sub tree :91160---------
+Node(tag=127, identifier=127, data=<sub_tree.node object at 0x119cbb410>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725616.3------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 8.53 s &&&&&&&&&&&&
+('search time', 49)
+------- search sub tree :91160---------
+Node(tag=634, identifier=634, data=<sub_tree.node object at 0x118963e90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725624.99------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 8.95 s &&&&&&&&&&&&
+('######### tree.listSelectedSet: ', [])
+('has take action ', 91160)
+%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%
+('Answer_len', 1)
+('search time', 0)
+------- search sub tree :91160---------
+Node(tag=732, identifier=732, data=<sub_tree.node object at 0x11c81a550>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725642.72------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 8.92 s &&&&&&&&&&&&
+('search time', 1)
+------- search sub tree :91160---------
+Node(tag=57, identifier=57, data=<sub_tree.node object at 0x11f4c2a90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725651.98------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 9.25 s &&&&&&&&&&&&
+('search time', 2)
+------- search sub tree :91160---------
+Node(tag=154, identifier=154, data=<sub_tree.node object at 0x11c756a90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725661.83------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 9.86 s &&&&&&&&&&&&
+('search time', 3)
+------- search sub tree :91160---------
+Node(tag=754, identifier=754, data=<sub_tree.node object at 0x1188c5a10>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725673.86------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 11.97 s &&&&&&&&&&&&
+('search time', 4)
+------- search sub tree :91160---------
+Node(tag=362, identifier=362, data=<sub_tree.node object at 0x118a7b350>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725683.97------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 10.15 s &&&&&&&&&&&&
+('search time', 5)
+------- search sub tree :91160---------
+Node(tag=448, identifier=448, data=<sub_tree.node object at 0x12246c450>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725694.24------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 10.28 s &&&&&&&&&&&&
+('search time', 6)
+------- search sub tree :91160---------
+Node(tag=747, identifier=747, data=<sub_tree.node object at 0x118816450>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725704.28------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 10.02 s &&&&&&&&&&&&
+('search time', 7)
+------- search sub tree :91160---------
+Node(tag=56, identifier=56, data=<sub_tree.node object at 0x11c1fad50>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725714.58------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 10.31 s &&&&&&&&&&&&
+('search time', 8)
+------- search sub tree :91160---------
+Node(tag=190, identifier=190, data=<sub_tree.node object at 0x11c3e4910>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725725.43------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 10.85 s &&&&&&&&&&&&
+('search time', 9)
+------- search sub tree :91160---------
+Node(tag=522, identifier=522, data=<sub_tree.node object at 0x1209d5350>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725736.43------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 10.99 s &&&&&&&&&&&&
+('search time', 10)
+------- search sub tree :91160---------
+Node(tag=202, identifier=202, data=<sub_tree.node object at 0x119bcd950>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725747.49------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 11.07 s &&&&&&&&&&&&
+('search time', 11)
+------- search sub tree :91160---------
+Node(tag=296, identifier=296, data=<sub_tree.node object at 0x124d62450>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725760.02------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 12.52 s &&&&&&&&&&&&
+('search time', 12)
+------- search sub tree :91160---------
+Node(tag=13, identifier=13, data=<sub_tree.node object at 0x122194610>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725771.23------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 11.22 s &&&&&&&&&&&&
+('search time', 13)
+------- search sub tree :91160---------
+Node(tag=456, identifier=456, data=<sub_tree.node object at 0x11e1d8550>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725783.15------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 11.91 s &&&&&&&&&&&&
+('search time', 14)
+------- search sub tree :91160---------
+Node(tag=640, identifier=640, data=<sub_tree.node object at 0x1197806d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725795.37------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 12.21 s &&&&&&&&&&&&
+('search time', 15)
+------- search sub tree :91160---------
+Node(tag=141, identifier=141, data=<sub_tree.node object at 0x11f160350>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725807.23------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 11.85 s &&&&&&&&&&&&
+('search time', 16)
+------- search sub tree :91160---------
+Node(tag=483, identifier=483, data=<sub_tree.node object at 0x121640e90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725819.87------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 12.66 s &&&&&&&&&&&&
+('search time', 17)
+------- search sub tree :91160---------
+Node(tag=21, identifier=21, data=<sub_tree.node object at 0x11c5975d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725832.12------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 12.26 s &&&&&&&&&&&&
+('search time', 18)
+------- search sub tree :91160---------
+Node(tag=489, identifier=489, data=<sub_tree.node object at 0x122735310>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725845.35------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 13.21 s &&&&&&&&&&&&
+('search time', 19)
+------- search sub tree :91160---------
+Node(tag=249, identifier=249, data=<sub_tree.node object at 0x11cb7c1d0>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725858.1------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 12.78 s &&&&&&&&&&&&
+('search time', 20)
+------- search sub tree :91160---------
+Node(tag=727, identifier=727, data=<sub_tree.node object at 0x12164da90>) is selected by 91160
+('has search ', 91160)
+--------------------- start search_vv  ------------------------
+----------------- end search_vv 1522725874.12------------------
+_cal_policys
+&&&&&&&&&&&&&&& one tree search time = 16.00 s &&&&&&&&&&&&
+('search time', 21)
+------- search sub tree :91160---------
+Node(tag=548, identifier=548, data=<sub_tree.node object at 0x11effaa90>) is selected by 91160

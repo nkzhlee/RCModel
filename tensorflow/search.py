@@ -26,18 +26,23 @@ class SearchTree(object):
     python -u run.py --train --algo BIDAF --epochs 2 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test20 --test_files ../data/demo/test/search.test.json
     
     
-    python -u run.py --train --algo MCST --draw_path ./log --epochs 2 --search_time 5 --max_a_len 3  --beta 100 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test5 --test_files ../data/demo/test/search.test.json
+    python -u run.py --train --algo MCST --draw_path ./log/haha --epochs 2 --search_time 5 --max_a_len 3  --beta 10 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test5 --test_files ../data/demo/test/search.test.json
     
-    python -u run.py --train --algo MCST --epochs 2 --search_time 5 --max_a_len 3  --beta 100 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
+    python -u run.py --train --algo MCST --draw_path ./log/test --epochs 2 --search_time 5 --max_a_len 3  --beta 1 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
     
     nohup python -u run.py --train --algo MCST --draw_path ./log/2 --epochs 30 --search_time 5000 --max_a_len 25  --beta 7 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json ../data/demo/test/search.test.json >beta_7_30_5000_25.txt 2>&1 &
     
+    python -u run.py --train --algo MCST --draw_path ./log/haha --epochs 2 --search_time 5 --max_a_len 3  --beta 10 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test5 --test_files ../data/demo/test/search.test.json
+    
+    nohup python -u run.py --train --algo MCST --draw_path ./log/1 --gpu 0 --epochs 30 --search_time 10 --max_a_len 5 --beta 100 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json ../data/demo/test/search.test.json >beta_100_30_50_10.txt 2>&1 &
+    
     """
 
-    def __init__(self, tfg, data, max_a_len, max_search_time, beta, dropout_keep_prob):
+    def __init__(self, tfg, data, max_a_len, max_search_time, beta, m_value, dropout_keep_prob):
         self.tfg = tfg
         self.data = data
         self.beta = beta
+        self.m_value = m_value
         self.max_a_len = max_a_len
         self.max_search_time = max_search_time
         self.dropout_keep_prob = dropout_keep_prob
@@ -73,7 +78,7 @@ class SearchTree(object):
                            self.dropout_keep_prob)
         start_node = 'question_' + str(self.data['question_id'])
         mcts_tree = search_tree(self.tfg, self.data['question_id'], self.data['passage_token_ids'], self.max_a_len,
-                                self.max_search_time, self.beta, self.l_passage, ref_answers, self.tfg.vocab)
+                                self.max_search_time, self.beta,self.m_value, self.l_passage, ref_answers, self.tfg.vocab)
         for t in range(self.max_a_len):
             #print ('Answer_len', t)
             mcts_tree.search(start_node)
@@ -116,10 +121,14 @@ class SearchTree(object):
         else:
             bleu_rouge = None
         value_with_mcts = bleu_rouge
-        #print 'bleu_rouge(value_with_mcts): '
-        #print value_with_mcts
+        # print 'bleu_rouge(value_with_mcts): '
+        # print value_with_mcts
         # now use Bleu-4 , Rouge-L
-        input_v = value_with_mcts['Rouge-L']
+        input_v = value_with_mcts['Rouge-L'] * self.m_value['Rouge-L'] \
+                  + value_with_mcts['Bleu-4'] * self.m_value['Bleu-4']\
+                  + value_with_mcts['Bleu-1'] * self.m_value['Bleu-1']\
+                  + value_with_mcts['Bleu-3'] * self.m_value['Bleu-3']\
+                  + value_with_mcts['Bleu-2'] * self.m_value['Bleu-2']
         #print self.data
         total_loss = 0
         num_loss = 0
@@ -136,7 +145,7 @@ class SearchTree(object):
             if prob_id == 0:
                 loss = self.tfg.cal_first_loss(policy, input_v)
             else:
-                loss = self.tfg.cal_loss(policy,input_v,listSelectedSet[:prob_id], c, prob_id)
+                loss = self.tfg.cal_loss(policy, input_v, listSelectedSet[:prob_id], c, prob_id)
             total_loss += loss
             #print ('loss', loss)
         result = 1.0 * total_loss / num_loss
@@ -171,7 +180,7 @@ class SearchTree(object):
                            self.dropout_keep_prob)
         start_node = 'question_' + str(self.data['question_id'])
         mcts_tree = search_tree(self.tfg, self.data['question_id'], self.data['passage_token_ids'], self.max_a_len,
-                                self.max_search_time, self.beta, self.l_passage, ref_answers, self.tfg.vocab)
+                                self.max_search_time, self.beta,self.m_value, self.l_passage, ref_answers, self.tfg.vocab)
         for t in range(self.max_a_len):
             #print ('Answer_len', t)
             mcts_tree.search_eval(start_node)
@@ -187,10 +196,7 @@ class SearchTree(object):
         listSelectedSet = map(eval, listSelectedSet)
         for idx in listSelectedSet:
             listSelectedSet_words.append(self.data['passage_token_ids'][idx])
-        # print 'listSelectedSet:'
-        # print listSelectedSet
-        # print 'listSelectedSet_words: '
-        # print listSelectedSet_words
+
         strr123 = self.tfg.vocab.recover_from_ids(listSelectedSet_words, 0)
         #print strr123
         pred_answer ={'question_id': self.data['question_id'],
@@ -217,7 +223,11 @@ class SearchTree(object):
         # print 'bleu_rouge(value_with_mcts): '
         # print value_with_mcts
         # now use Bleu-4 , Rouge-L
-        input_v = value_with_mcts['Rouge-L']
+        input_v = value_with_mcts['Rouge-L'] * self.m_value['Rouge-L'] \
+                  + value_with_mcts['Bleu-4'] * self.m_value['Bleu-4'] \
+                  + value_with_mcts['Bleu-1'] * self.m_value['Bleu-1'] \
+                  + value_with_mcts['Bleu-3'] * self.m_value['Bleu-3'] \
+                  + value_with_mcts['Bleu-2'] * self.m_value['Bleu-2']
         # print self.data
         total_loss = 0
         num_loss = 0
