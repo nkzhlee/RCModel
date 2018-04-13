@@ -77,11 +77,19 @@ class SearchTree(object):
                            [self.data['q_length']],
                            self.dropout_keep_prob)
         start_node = 'question_' + str(self.data['question_id'])
+        time_start = time.time()
         mcts_tree = search_tree(self.tfg, self.data['question_id'], self.data['passage_token_ids'], self.max_a_len,
                                 self.max_search_time, self.beta,self.m_value, self.l_passage, ref_answers, self.tfg.vocab)
+        ave_time = (time.time() - time_start)
+        #print('Average time of init is :', ave_time)
+        s_time = 0
+        a_time = 0
         for t in range(self.max_a_len):
             #print ('Answer_len', t)
+            ttime_start = time.time()
             mcts_tree.search(start_node)
+            s_time = s_time + (time.time() - ttime_start)
+            ttime_start = time.time()
             tmp_policy = mcts_tree.get_ppolicy(start_node)
             # print 'tmp_policy.values(): '
             # print tmp_policy.values()
@@ -90,10 +98,14 @@ class SearchTree(object):
             prob, select_doc_id, start_node = mcts_tree.take_action(start_node)
             p_data.append(prob)
             listSelectedSet.append(select_doc_id)
+            a_time = a_time + (time.time() - ttime_start)
             if select_doc_id == str(self.l_passage-1):
                 #print 'break!!!!!!!!!!!'
                 break
+
         #print ('listSelectedSet', listSelectedSet)
+        # print('Average time of search is :', s_time)
+        # print('Average time of action is :', a_time)
         listSelectedSet_words = []
         listSelectedSet = map(eval, listSelectedSet)
         for idx in listSelectedSet:
@@ -130,28 +142,32 @@ class SearchTree(object):
                   + value_with_mcts['Bleu-3'] * self.m_value['Bleu-3']\
                   + value_with_mcts['Bleu-2'] * self.m_value['Bleu-2']
         #print self.data
+        time_start = time.time()
         total_loss = 0
         num_loss = 0
-        for prob_id, prob_data in enumerate(p_data,0):
-            # print 'p_data: '
-            # print prob_id
-            # print prob_data
-            num_loss += 1
-            c = []
-            policy = []
-            for prob_key, prob_value in prob_data.items():
-                c.append(prob_key)
-                policy.append(prob_value)
-            if prob_id == 0:
-                loss = self.tfg.cal_first_loss(policy, input_v)
-            else:
-                loss = self.tfg.cal_loss(policy, input_v, listSelectedSet[:prob_id], c, prob_id)
-            total_loss += loss
-            #print ('loss', loss)
-        result = 1.0 * total_loss / num_loss
-        self.tfg.draw_train(result, input_v, step)
-        #print ('&&&&&&&&&&&&&&& 1 batch train time = %3.2f s &&&&&&&&&&&&' % (time.time() - batch_start_time))
-        return result
+        # for prob_id, prob_data in enumerate(p_data,0):
+        #     # print 'p_data: '
+        #     # print prob_id
+        #     # print prob_data
+        #     num_loss += 1
+        #     c = []
+        #     policy = []
+        #     for prob_key, prob_value in prob_data.items():
+        #         c.append(prob_key)
+        #         policy.append(prob_value)
+        #     if prob_id == 0:
+        #         loss = self.tfg.cal_first_loss(policy, input_v)
+        #     else:
+        #         loss = self.tfg.cal_loss(policy, input_v, listSelectedSet[:prob_id], c, prob_id)
+        #     total_loss += loss
+        #     #print ('loss', loss)
+        # result = 1.0 * total_loss / num_loss
+        # self.tfg.draw_train(result, input_v, step)
+        # ave_time = (time.time() - time_start)
+        # #print('Average time of cal loss is :', ave_time)
+        # #print ('&&&&&&&&&&&&&&& 1 batch train time = %3.2f s &&&&&&&&&&&&' % (time.time() - batch_start_time))
+        # return result
+        return 0
 
     def one_evaluate(self, step):
         p_data = []

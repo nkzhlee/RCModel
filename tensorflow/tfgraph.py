@@ -269,3 +269,17 @@ class TFGraph(object):
         shape_a, shape_b = self.sess.run([self.shape_a, self.shape_b], feed_dict=self.feed_dict)
         return shape_a,shape_b
 
+    def save(self, model_dir, model_prefix):
+        """
+        Saves the model into model_dir with model_prefix as the model indicator
+        """
+        self.saver.save(self.sess, os.path.join(model_dir, model_prefix))
+        self.logger.info('Model saved in {}, with prefix {}.'.format(model_dir, model_prefix))
+
+    def restore(self, model_dir, model_prefix):
+        """
+        Restores the model into model_dir from model_prefix as the model indicator
+        """
+        self.saver.restore(self.sess, os.path.join(model_dir, model_prefix))
+        self.logger.info('Model restored from {}, with prefix {}'.format(model_dir, model_prefix))
+

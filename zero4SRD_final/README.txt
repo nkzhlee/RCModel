@@ -1,0 +1,1 @@
+nohup python -u zero4SRD_final.py result.txt reward.txt 3.0 folder1 >fold1.log 2>&1 &

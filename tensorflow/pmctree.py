@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # -*- coding:utf-8 -*-
 
-import multiprocessing as mp
 import tensorflow as tf
 from sub_tree import sub_tree
 from sub_tree import node
@@ -11,35 +10,280 @@ import time
 import Queue
 import numpy as np
 import os
+import multiprocessing as mp
+import Queue
 
 from treelib import Tree
 import copy
 from utils import compute_bleu_rouge
 from utils import normalize
 from layers.basic_rnn import rnn
-from layers.match_layer import MatchLSTMLayer
-from layers.match_layer import AttentionFlowMatchLayer
-from layers.pointer_net import PointerNetDecoder
-from pathos.multiprocessing import ProcessPool
-
-def main():
-    for idx in range(10):
-        print idx
+import copy_reg
+import types
 
 
-def job(x):
-    return x * x
+
+def _pickle_method(m):
+    if m.im_self is None:
+        return getattr, (m.im_class, m.im_func.func_name)
+    else:
+        return getattr, (m.im_self, m.im_func.func_name)
 
 
-def test_tf():
-    1 == 1
+copy_reg.pickle(types.MethodType, _pickle_method)
+
+'''
+python -u run.py --train --algo MCST --draw_path ./log/haha --epochs 2 --search_time 5 --max_a_len 3  --beta 10 --batch_size 2 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test5 --test_files ../data/demo/test/search.test.json
+
+nohup python -u run.py --train --algo MCST --draw_path ./log/test_pp --epochs 3 --search_time 300 --max_a_len 5 --beta 100 --batch_size 10 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json ../data/demo/test/search.test.json >parallel_test.txt 2>&1 &
+
+nohup python -u run.py --train --algo MCST --draw_path ./log/test_danji --epochs 3 --search_time 300 --max_a_len 5 --beta 100 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json ../data/demo/test/search.test.json >danji_test.txt 2>&1 &
 
 
+python -u run.py --train --algo MCST --draw_path ./log/haha --epochs 2 --search_time 20 --max_a_len 3  --beta 10 --batch_size 5 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test5 --test_files ../data/demo/test/search.test.json
+'''
+
+class TFGraph(object):
+    """
+    Implements the main reading comprehension model.
+
+    python -u run.py --train --algo MCST --epochs 10 --batch_size 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test20 --test_files ../data/demo/test/search.test.json
+    """
+
+    def __init__(self, name, vocab, args, ifworker):
+        self.tf_name = name
+        self.logger = logging.getLogger("brc")
+        self.vocab = vocab
+        self.draw_path = args.draw_path
+
+        # basic config
+        self.algo = args.algo
+        self.hidden_size = args.hidden_size
+        self.optim_type = args.optim
+        self.learning_rate = args.learning_rate
+        self.weight_decay = args.weight_decay
+        self.use_dropout = args.dropout_keep_prob < 1
+        # save info
+        self.build_graph(ifworker)
+
+    def build_graph(self,ifworker):
+        """
+        Builds the computation graph with Tensorflow
+        """
+        # session info
+        sess_config = tf.ConfigProto()
+        sess_config.gpu_options.allow_growth = True
+        self.sess = tf.Session(config=sess_config)
+        start_t = time.time()
+        self.setup_placeholders()
+        if ifworker:
+            self.embed_worker()
+        else:
+            self.embed()
+        #self._embed()
+        self.encode()
+        self.initstate()
+        self.action_frist()
+        self.action()
+        self.draw_rfboard()
+        # param_num = sum([np.prod(self.sess.run(tf.shape(v))) for v in self.all_params])
+        # self.logger.info('There are {} parameters in the model'.format(param_num))
+        self.saver = tf.train.Saver()
+        self.sess.run(tf.global_variables_initializer())
+        self.logger.info('Time to build graph: {} s'.format(time.time() - start_t))
+
+    def setup_placeholders(self):
+        """
+        Placeholders
+        """
+        self.p = tf.placeholder(tf.int32, [None, None])
+        self.q = tf.placeholder(tf.int32, [None, None])
+        self.p_length = tf.placeholder(tf.int32, [None])
+        self.q_length = tf.placeholder(tf.int32, [None])
+        self.start_label = tf.placeholder(tf.int32, [None])
+        self.end_label = tf.placeholder(tf.int32, [None])
+        self.dropout_keep_prob = tf.placeholder(tf.float32)
+
+        # test
+        self.p_words_id = tf.placeholder(tf.int32, [None])
+        self.candidate_id = tf.placeholder(tf.int32, [None])
+        # self.words = tf.placeholder(tf.float32, [None, None])
+        self.selected_id_list = tf.placeholder(tf.int32, [None])
+        self.policy = tf.placeholder(tf.float32, [1, None])  # policy
+        self.v = tf.placeholder(tf.float32, [1, 1])  # value
+        self.result = tf.placeholder(tf.float32, None)
+        self.rouge = tf.placeholder(tf.float32, None)
+        self.bleu1 = tf.placeholder(tf.float32, None)
+
+    def embed(self):
+        """
+        The embedding layer, question and passage share embeddings
+        """
+        with tf.device('/cpu:0'), tf.variable_scope('word_embedding'):
+            # with tf.variable_scope('word_embedding'):
+            self.word_embeddings = tf.get_variable(
+                'word_embeddings',
+                shape=(self.vocab.size(), self.vocab.embed_dim),
+                initializer=tf.constant_initializer(self.vocab.embeddings),
+                trainable=True
+            )
+            self.p_emb = tf.nn.embedding_lookup(self.word_embeddings, self.p)
+            self.q_emb = tf.nn.embedding_lookup(self.word_embeddings, self.q)
+    def embed_worker(self):
+        """
+        The embedding layer, question and passage share embeddings
+        """
+        with tf.device('/cpu:0'), tf.variable_scope('word_embedding',reuse=True):
+            # with tf.variable_scope('word_embedding'):
+            self.word_embeddings = tf.get_variable(
+                'word_embeddings',
+                shape=(self.vocab.size(), self.vocab.embed_dim),
+                initializer=tf.constant_initializer(self.vocab.embeddings),
+                trainable=True
+            )
+            self.p_emb = tf.nn.embedding_lookup(self.word_embeddings, self.p)
+            self.q_emb = tf.nn.embedding_lookup(self.word_embeddings, self.q)
+
+    def encode(self):
+        """
+        Employs two Bi-LSTMs to encode passage and question separately
+        """
+        with tf.variable_scope('passage_encoding'):
+            self.p_encodes, _ = rnn('bi-lstm', self.p_emb, self.p_length, self.hidden_size)
+        with tf.variable_scope('question_encoding'):
+            _, self.sep_q_encodes = rnn('bi-lstm', self.q_emb, self.q_length, self.hidden_size)
+        if self.use_dropout:
+            self.p_encodes = tf.nn.dropout(self.p_encodes, self.dropout_keep_prob)
+            self.sep_q_encodes = tf.nn.dropout(self.sep_q_encodes, self.dropout_keep_prob)
+
+    def initstate(self):
+        with tf.variable_scope('initstating'):
+            self.V = tf.Variable(tf.random_uniform([self.hidden_size * 2, self.hidden_size * 2], -1. / self.hidden_size,
+                                                   1. / self.hidden_size))
+            self.W = tf.Variable(
+                tf.random_uniform([self.hidden_size * 2, 1], -1. / self.hidden_size, 1. / self.hidden_size))
+
+            self.W_b = tf.Variable(tf.random_uniform([1, 1], -1. / self.hidden_size, 1. / self.hidden_size))
+
+            self.V_c = tf.Variable(
+                tf.random_uniform([self.hidden_size * 2, self.hidden_size], -1. / self.hidden_size, 1. / self.hidden_size))
+            self.V_h = tf.Variable(
+                tf.random_uniform([self.hidden_size * 2, self.hidden_size], -1. / self.hidden_size, 1. / self.hidden_size))
+
+            self.q_state_c = tf.sigmoid(tf.matmul(self.sep_q_encodes, self.V_c))
+            self.q_state_h = tf.sigmoid(tf.matmul(self.sep_q_encodes, self.V_h))
+            self.q_state = tf.concat([self.q_state_c, self.q_state_h], 1)
+
+        self.shape_a = tf.shape(self.q_state)
+        self.shape_b = tf.shape(self.p_encodes)
+
+        self.words = tf.reshape(self.p_encodes, [-1, self.hidden_size * 2])
+
+        # self.words_list = tf.gather(self.words, self.p_words_id) # all words in a question doc
+
+    def action_frist(self):
+        """
+        select first word
+        """
+        # self.candidate = tf.reshape(self.p_emb,[-1,self.hidden_size*2])
+        with tf.variable_scope('prob_first'):
+            self.logits_first = tf.reshape(tf.matmul(tf.matmul(self.words, self.V), tf.transpose(self.q_state)), [-1])
+            self.prob_first = tf.nn.softmax(self.logits_first)
+            self.prob_id_first = tf.argmax(self.prob_first)
+        with tf.variable_scope('value_first'):
+            self.value_first = tf.sigmoid(tf.reshape(tf.matmul(self.q_state, self.W), [1, 1]) + self.W_b)  # [1,1]
+
+    def action(self):
+        """
+        Employs Bi-LSTM again to fuse the context information after match layer
+        """
+        self.candidate = tf.gather(self.words, self.candidate_id)
+        self.selected_list = tf.gather(self.words, self.selected_id_list)
+        self.input = tf.reshape(self.selected_list, [1, -1, self.hidden_size * 2])
+        rnn_cell = tf.contrib.rnn.BasicLSTMCell(num_units=self.hidden_size, state_is_tuple=False)
+        _, self.states = tf.nn.dynamic_rnn(rnn_cell, self.input, initial_state=self.q_state,
+                                           dtype=tf.float32)  # [1, dim]
+        self.logits = tf.reshape(tf.matmul(tf.matmul(self.candidate, self.V), tf.transpose(self.states)), [-1])
+
+        self.prob = tf.nn.softmax(self.logits)
+        self.prob_id = tf.argmax(self.prob)
+        self.value = tf.sigmoid(tf.reshape(tf.matmul(self.states, self.W), [1, 1]) + self.W_b)  # [1,1]
+
+    def value_function(self, words_list):
+        words_list = map(eval, words_list)
+        # print words_list
+        if len(words_list) == 0:
+            value_p = self.sess.run(self.value_first, feed_dict=self.feed_dict)
+        else:
+            feed_dict = dict({self.selected_id_list: words_list}.items() + self.feed_dict.items())
+            value_p = self.sess.run(self.value, feed_dict=feed_dict)
+        return value_p
+
+    def get_policy(self, words_list, l_passages):
+        max_id = float('-inf')
+        policy_c_id = []
+        words_list = map(eval, words_list)
+        for can in words_list:
+            max_id = max(can, max_id)
+        for idx in range(l_passages):
+            if idx > max_id:
+                policy_c_id.append(idx)
+        if len(words_list) == 0:
+            c_pred = self.sess.run(self.prob_first, feed_dict=self.feed_dict)
+        else:
+            feed_dict = dict(
+                {self.selected_id_list: words_list, self.candidate_id: policy_c_id}.items() + self.feed_dict.items())
+            c_pred = self.sess.run(self.prob, feed_dict=feed_dict)
+
+        return policy_c_id, c_pred
+
+
+    def draw_rfboard(self):
+        self.loss_summary = tf.summary.scalar('loss', tf.reduce_mean(self.result))
+        self.rouge_summary = tf.summary.scalar('rb', tf.reduce_mean(self.rouge))
+        with tf.name_scope('summary'):
+            self.merged = tf.summary.merge_all()
+            self.train_writer = tf.summary.FileWriter(self.draw_path+'/train')
+            self.test_writer = tf.summary.FileWriter(self.draw_path+'/test')
+
+    def set_feed_dict(self,p,q,p_length,q_length,dropout_keep_prob):
+        self.feed_dict = {self.p: p,
+                          self.q: q,
+                          self.p_length: p_length,
+                          self.q_length: q_length,
+                          self.dropout_keep_prob: dropout_keep_prob}
+    def draw_train(self,result, rouge, step):
+        feed_dict = dict({self.result: result, self.rouge: rouge})
+        summary = self.sess.run(self.merged, feed_dict = feed_dict)
+        self.train_writer.add_summary(summary, step)
+    def draw_test(self,result, rouge, step):
+        feed_dict = dict({self.result: result, self.rouge: rouge})
+        summary = self.sess.run(self.merged, feed_dict = feed_dict)
+        self.test_writer.add_summary(summary, step)
+    def run_session_shape(self):
+        shape_a, shape_b = self.sess.run([self.shape_a, self.shape_b], feed_dict=self.feed_dict)
+        return shape_a,shape_b
+    def save(self, model_dir, model_prefix):
+        """
+        Saves the model into model_dir with model_prefix as the model indicator
+        """
+        self.saver.save(self.sess, os.path.join(model_dir, model_prefix))
+        self.logger.info('Model saved in {}, with prefix {}.'.format(model_dir, model_prefix))
+
+    def restore(self, model_dir, model_prefix):
+        """
+        Restores the model into model_dir from model_prefix as the model indicator
+        """
+        self.saver.restore(self.sess, os.path.join(model_dir, model_prefix))
+        self.logger.info('Model restored from {}, with prefix {}'.format(model_dir, model_prefix))
 
 class Data_tree(object):
     def __init__(self, tree, start_node):
+        self.search_time = 3000
         self.tree = tree
         self.beta = 100
+        self.max_depth = 10
+        self.dropout_keep_prob = 1.0
         self.start_node = start_node
         self.q_id = tree.raw_tree_data['tree_id']
         self.q_type = tree.raw_tree_data['question_type']
@@ -54,50 +298,12 @@ class Data_tree(object):
 
         self.p_word_id, self.p_pred = [], []
 
+        self.m_value = None
         self.tmp_node = None
         self.expand_node = None
         self.num_of_search = 0
 
         self.result_value = 0
-def pow( i):
-    return i+1
-
-
-
-
-def init_sub_tree(tree):
-    #print '------- init sub tree :' + str(tree['tree_id']) + '---------'
-    start_node = 'question_' + str(tree['tree_id'])
-    mcts_tree = sub_tree(tree)
-    data_tree = Data_tree(mcts_tree, start_node)
-    data_tree.num_of_search += 1
-    return data_tree
-
-def search_sub_tree(data_tree):
-    beta = data_tree.beta
-    sub_tree = data_tree.tree
-    #print '------- search sub tree :' + str(sub_tree.q_id) + '---------'
-    start_node_id = data_tree.start_node
-    data_tree.num_of_search += 1
-    data_tree.select_list = [start_node_id]
-    tmp_node = sub_tree.tree.get_node(start_node_id)
-    while not tmp_node.is_leaf():
-        max_score = float("-inf")
-        max_id = -1
-        for child_id in tmp_node.fpointer:
-            child_node = sub_tree.tree.get_node(child_id)
-            # score = child_node.data.p
-            score = beta * child_node.data.p * ((1 + sub_tree.count) / (1 + child_node.data.num))
-            if score > max_score:
-                max_id = child_id
-                max_score = score
-        data_tree.select_list.append(max_id)
-        tmp_node = sub_tree.tree.get_node(max_id)
-        data_tree.tmp_node = tmp_node
-        #print str(data_tree.tmp_node) + ' is selected by ' + str(data_tree.q_id)
-    return data_tree
-
-
 
 
 def take_action(data_tree):
@@ -115,29 +321,168 @@ def take_action(data_tree):
             select_word_node_id = child_node.identifier
     return prob, select_word, select_word_node_id
 
-def action_sub_tree(data_tree):
-    prob, select_word_id, start_node = take_action(data_tree)
-    data_tree.start_node = start_node
-    data_tree.p_data.append(prob)
-    data_tree.listSelectedSet.append(select_word_id)
-    return data_tree
+#树搜索子进程
+def do_search(lock, tree_to_accomplish, main_rf_value, main_rf_policy, tree_are_done, log):
+    while True:
+        try:
+            '''
+                try to get task from the queue. get_nowait() function will 
+                raise queue.Empty exception if the queue is empty. 
+                queue(False) function would do the same task also.
+            '''
+            with lock:
+                list = tree_to_accomplish.get_nowait()
+        except Queue.Empty:
+
+            break
+        else:
+            '''
+                if no exception has been raised, add the task completion 
+                message to task_that_are_done queue
+            '''
+            #print list
+            data_tree = list[0]
+            #print ('start_search: ', data_tree.q_id)
+            vocab = list[2]
+            start_node_id = data_tree.start_node
+            for s_time in range(data_tree.search_time):
+                start_one_time = time.time()
+                search_list = [start_node_id]
+                tmp_node = data_tree.tree.tree.get_node(start_node_id)
+                #print 'search time :'+ str(s_time)
+                while not tmp_node.is_leaf():
+                    max_score = float("-inf")
+                    max_id = -1
+                    for child_id in tmp_node.fpointer:
+                        child_node = data_tree.tree.tree.get_node(child_id)
+                        score = data_tree.beta * child_node.data.p * (
+                            (tmp_node.data.num) ** 0.5 / (1 + child_node.data.num))
+
+                        # print 'child_node.data.Q: '
+                        # print child_node.data.Q
+                        score += child_node.data.Q
+
+                        if score > max_score:
+                            max_id = child_id
+                            max_score = score
+                    search_list.append(max_id)
+                    tmp_node = data_tree.tree.tree.get_node(max_id)
+
+                # if tmp_node.data.word[-1] == str(self.l_passages-1):
+                if tmp_node.data.word[-1] == str(data_tree.l_passage - 1):
+                    pred_answer = tmp_node.data.word
+                    # print 'pred_answer: '
+                    # print pred_answer
+                    # print 'listSelectedSet'
+                    listSelectedSet_words = []
+                    listSelectedSet = map(eval, pred_answer)
+                    # print listSelectedSet
+                    for idx in listSelectedSet:
+                        listSelectedSet_words.append(data_tree.words_id_list[idx])
+                    # print 'pred_answer '
+                    str123 = vocab.recover_from_ids(listSelectedSet_words, 0)
+                    # print str123
+                    pred_answers = []
+                    ref_answers = []
+                    pred_answers.append({'question_id': [data_tree.q_id],
+                                         'question_type': [],
+                                         'answers': [''.join(str123)],
+                                         'entity_answers': [[]],
+                                         'yesno_answers': []})
+                    ref_answers.append({'question_id': data_tree.q_id,
+                                        'question_type': data_tree.q_type,
+                                        'answers': data_tree.ref_answer,
+                                        'entity_answers': [[]],
+                                        'yesno_answers': []})
+                    if len(data_tree.ref_answer) > 0:
+                        pred_dict, ref_dict = {}, {}
+                        for pred, ref in zip(pred_answers, ref_answers):
+                            question_id = ref['question_id']
+                            if len(ref['answers']) > 0:
+                                pred_dict[question_id] = normalize(pred['answers'])
+                                ref_dict[question_id] = normalize(ref['answers'])
+                                # print '========compare in tree======='
+                                # print pred_dict[question_id]
+                                # print '----------------------'
+                                # print ref_dict[question_id]
+                        bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+                    else:
+                        bleu_rouge = None
+                    # print 'last words ++++++++++++++ '
+                    # print bleu_rouge
+                    v = bleu_rouge['Rouge-L'] * data_tree.m_value['Rouge-L'] \
+                        + bleu_rouge['Bleu-4'] * data_tree.m_value['Bleu-4'] \
+                        + bleu_rouge['Bleu-1'] * data_tree.m_value['Bleu-1'] \
+                        + bleu_rouge['Bleu-3'] * data_tree.m_value['Bleu-3'] \
+                        + bleu_rouge['Bleu-2'] * data_tree.m_value['Bleu-2']
+                else:
+                    v = 0
+                    out = tmp_node.data.word
+                    main_rf_value.put(out)
+                    while v == 0:
+                        time.sleep(0.1)
+                        #print 222
+                        if not tree_to_accomplish.empty():
+                            tmp = tree_to_accomplish.get_nowait()
+                            #print ('value', tmp)
+                            v = tmp
+                # update:
+                for node_id in search_list:
+                    tmp_node = data_tree.tree.tree.get_node(node_id)
+                    tmp_node.data.Q = (tmp_node.data.Q * tmp_node.data.num + v) / (tmp_node.data.num + 1)
+                    tmp_node.data.num += 1
+                data_tree.tree.count += 1
+
+                if tmp_node.is_leaf() and (data_tree.tree.tree.depth(tmp_node) < data_tree.max_depth) and tmp_node.data.word[
+                    -1] != str(data_tree.l_passage - 1):
+                    # expand:
+                    words_list = tmp_node.data.word
+                    # print 'word_list:'
+                    # print words_list
+                    tmp = 0
+                    out = []
+                    out.append(words_list)
+                    out.append(data_tree.l_passage)
+                    main_rf_policy.put(out)
+                    while tmp == 0:
+                        if not tree_to_accomplish.empty():
+                            tmp = tree_to_accomplish.get_nowait()
+                            #print ('tmp', tmp)
+                            p_word_id = tmp[0]
+                            p_pred = tmp[1]
+                    for word in p_word_id:
+                        data_tree.tree.node_map[' '.join(words_list + [str(word)])] = len(data_tree.tree.node_map)
+                        new_node = node()
+                        new_node.word = words_list + [str(word)]
+                        # print new_node.word
+                        new_node.p = p_pred[p_word_id.index(word)]
+                        data_tree.tree.tree.create_node(identifier=data_tree.tree.node_map[' '.join(new_node.word)],
+                                                        data=new_node,
+                                                        parent=tmp_node.identifier)
+            #take action
+            if not len(data_tree.listSelectedSet) == 0:
+                last_word = data_tree.listSelectedSet[-1]
+                if not last_word == str(data_tree.l_passage - 1):
+                    prob, select_word_id, start_node = take_action(data_tree)
+                    data_tree.start_node = start_node
+                    data_tree.p_data.append(prob)
+                    data_tree.listSelectedSet.append(select_word_id)
+            else:
+                prob, select_word_id, start_node = take_action(data_tree)
+                data_tree.start_node = start_node
+                data_tree.p_data.append(prob)
+                data_tree.listSelectedSet.append(select_word_id)
+            with lock:
+                tree_are_done.put(data_tree)
+            #print 1111
+            return data_tree
+    return True
+
 
 
 class PSCHTree(object):
     """
-    python -u run.py --train --algo MCST --epochs 1 --gpu 2 --max_p_len 2000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
-    nohup python -u run.py --train --algo BIDAF --epochs 10 --gpu 0 --train_files ../data/demo/trainset/test_5 --dev_files  ../data/demo/devset/test_5 --test_files ../data/demo/test/search.test.json >test5.txt 2>&1 &
-    nohup python -u run.py --train --algo MCST --epochs 50 --gpu 3 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_50_3_4.txt 2>&1 &
-
-    nohup python -u run.py --train --algo MCST --epochs 100 --gpu 2 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_100_20_3000.txt 2>&1 &
-
-    nohup python -u run.py --train --algo MCST --epochs 100 --gpu 2 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test20 --test_files ../data/demo/test/search.test.json >test_100_20_3000.txt 2>&1 &
-
-    python -u run.py --train --algo MCST --epochs 10 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test20 --test_files ../data/demo/test/search.test.json 
-
-
     nohup python -u run.py --train --algo MCST --epochs 30 --batch_size 20 --gpu 1 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_20_10_1000.txt 2>&1 &
-    nohup python -u run.py --train --algo MCST --epochs 30 --batch_size 10 --gpu 0 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json >test_10_10_500.txt 2>&1 &
 
     python -u run.py --train --algo MCST --epochs 3 --max_p_len 10000 --batch_size 25 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json
 
@@ -147,11 +492,13 @@ class PSCHTree(object):
     
     nohup python -u run.py --train --algo MCST --draw_path ./log/20 --gpu 1 --epochs 30 --search_time 3000 --max_a_len 10 --beta 20 --batch_size 50 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/search.train.json --dev_files  ../data/demo/devset/search.dev.json --test_files ../data/demo/test/search.test.json ../data/demo/test/search.test.json >beta_20_50_3000_10.txt 2>&1 &
 
+    python -u run.py --train --algo MCST --draw_path ./log/haha --epochs 2 --search_time 5 --max_a_len 3  --beta 10 --batch_size 2 --max_p_len 10000 --hidden_size 150  --train_files ../data/demo/trainset/test10 --dev_files  ../data/demo/devset/test5 --test_files ../data/demo/test/search.test.json
     """
 
     def __init__(self, args, vocab):
 
         self.vocab = vocab
+        self.args = args
         # logging
 
         self.logger = logging.getLogger("pmc")
@@ -178,18 +525,8 @@ class PSCHTree(object):
         self.beta = args.beta
 
 
-        self._build_graph()
-
-    # def _init_sub_tree(self,tree):
-    #     print '------- init sub tree :' + str(tree['tree_id']) + '---------'
-    #     start_node = 'question_' + str(tree['tree_id'])
-    #     mcts_tree = sub_tree(tree)
-    #     data_tree = Data_tree(mcts_tree, start_node)
-    #     data_tree.num_of_search += 1
-    #     return data_tree
-
-
-
+        #self._build_graph()
+        self.graph = TFGraph('train', vocab, args, False)
 
 
     def feed_in_batch(self, tree_batch, parallel_size, feed_dict, m_value ):
@@ -199,16 +536,11 @@ class PSCHTree(object):
         self.m_value = m_value
         # self.feed_dict = feed_dict
 
-    def tree_search(self):
-        # pool = ProcessPool(nodes=4)
-        # results = pool.amap(pow, [1, 2, 3, 4])
-        # while not results.ready():
-        #     time.sleep(5);
-        #     print(".", ' ')
-        # print(results.get())
+    def tree_search(self, batch_id):
         total_loss, num_loss = 0, 0
         trees = []
         data_trees = []
+        self.feed_dict_item = []
         # # test_tf()
         time_tree_start = time.time()
         # 1)initialize trees
@@ -224,26 +556,47 @@ class PSCHTree(object):
                     'p_length': self.tree_batch['p_length'][bitx],
                     'question_type': self.tree_batch['question_type'][bitx],
                     'ref_answer': self.tree_batch['ref_answers'][bitx]
-                    # 'mcst_model':self.tree_batch['mcst_model']
                     }
-            trees.append(tree)
 
-        #print ('Max parallel processes size: ', self.para_size)
-        pool = ProcessPool(nodes=self.para_size)
-        results = pool.amap(init_sub_tree, trees)
-        while not results.ready():
-            time.sleep(0.1)
-        for data_tree in results.get():
-            #print('has init ', data_tree.q_id)
+            #trees.append(tree)
+            start_node = 'question_' + str(tree['tree_id'])
+            mcts_tree = sub_tree(tree)
+            data_tree = Data_tree(mcts_tree, start_node)
+            data_tree.m_value = {'Bleu-4': 10.0, 'Bleu-3': 10.0, 'Bleu-2': 10.0, 'Bleu-1': 10.0,
+                                 'Rouge-L': 1.0}
+            data_tree.num_of_search += 1
+
             data_tree.beta = self.beta
+            data_tree.max_depth = self.max_a_len
+            data_tree.dropout_keep_prob = self.dropout_keep_prob
             data_tree.expand_node = data_tree.tree.tree.get_node(data_tree.tree.tree.root)
+            # expand
+            self.graph.set_feed_dict([tree['passage_token_id']],
+                                     [tree['question_token_ids']],
+                                     [tree['p_length']],
+                                     [tree['q_length']],
+                                     self.dropout_keep_prob)
+            self.feed_dict_item.append(self.graph.feed_dict)
+            words_list = data_tree.expand_node.data.word
+            # print 'word_list:'
+            # print words_list
+            p_word_id, p_pred = self.graph.get_policy(words_list, data_tree.l_passage)
+            for word in p_word_id:
+                data_tree.tree.node_map[' '.join(words_list + [str(word)])] = len(data_tree.tree.node_map)
+                new_node = node()
+                new_node.word = words_list + [str(word)]
+                # print new_node.word
+                new_node.p = p_pred[p_word_id.index(word)]
+                data_tree.tree.tree.create_node(identifier=data_tree.tree.node_map[' '.join(new_node.word)],
+                                                data=new_node,
+                                                parent=data_tree.expand_node.identifier)
             data_trees.append(data_tree)
 
-        self.tree_list = self.expands(data_trees)
-        # 2)search tree
 
+        self.tree_list = data_trees
+        # 2)search tree
         for t in range(self.max_a_len):
-            #rprint ('Answer_len', t)
+            #print ('Answer_len', t)
             if len(self.tree_list) == 0:
                 break
             for data_tree in self.tree_list:
@@ -253,76 +606,81 @@ class PSCHTree(object):
                     child_node = data_tree.tree.tree.get_node(child_id)
                     has_visit_num += child_node.data.num
                 data_tree.tree.count = has_visit_num
-            # search_time =int(self.search_time- has_visit_num)
-            for s_time in range(self.search_time):
-                search_tree_list = []
-                #print ('search time', s_time)
-                start_one_time = time.time()
-                search_pool = ProcessPool(nodes=self.para_size)
-                search_results = search_pool.amap(search_sub_tree, self.tree_list)
-                while not search_results.ready():
-                    time.sleep(0.1)
-                for data_tree in search_results.get():
-                    #print('has search ', data_tree.q_id)
-                    search_tree_list.append(data_tree)
+                data_tree.search_time =int(self.search_time - has_visit_num)
+            #search
+            #主要改动是定义了几个queue进行主进程和子进程之间的消息传递，子进程负责树搜索，主进程负责算policy和value
+            result_list = []
+            result_num = self.para_size
+            tree_to_accomplish_list = []
+            main_rf_value_list = []
+            main_rf_policy_list = []
 
-                self.tree_list = []
-                # gather train data
+            input_search = []
+            for tree in self.tree_list:
+                input = []
+                input.append(tree)
+                input.append(self.args)
+                input.append(self.vocab)
+                input.append(batch_id)
+                # input.append(self.graph)
+                input_search.append(input)
 
-                self.tree_list = self._search_vv(search_tree_list)
+            for i in range(result_num):
+                tree_to_accomplish = mp.Queue()
+                tree_to_accomplish.put(input_search[i])
+                tree_to_accomplish_list.append(tree_to_accomplish)
 
-                tree_need_expand_list = []
-                tree_no_need_expand_list = []
-                for data_tree in self.tree_list:
-                    data_tree_update = self._updates(data_tree)
-                    tmp_node = data_tree_update.tmp_node
-                    l_passage = data_tree_update.l_passage  # ???
-                    word_id = int(tmp_node.data.word[-1])
-                    if tmp_node.is_leaf() and (word_id < (l_passage)):
-                        data_tree_update.expand_node = tmp_node
-                        tree_need_expand_list.append(data_tree_update)
-                    else:
-                        tree_no_need_expand_list.append(data_tree_update)
+                main_rf_value = mp.Queue()
+                main_rf_value_list.append(main_rf_value)
 
-                self.tree_list = self.expands(tree_need_expand_list)
-                self.tree_list = self.tree_list + tree_no_need_expand_list
-                end_one_time = time.time()
-                #print ('&&&&&&&&&&&&&&& one tree search time = %3.2f s &&&&&&&&&&&&' % (end_one_time - start_one_time))
+                main_rf_policy = mp.Queue()
+                main_rf_policy_list.append(main_rf_policy)
 
-            # print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
-            num_action_procs = 0
-            self.finished_tree = []
-            action_tree_list = []
-            action_result_list = []
-            for data_tree in self.tree_list:
-                #print ('######### tree.listSelectedSet: ', data_tree.listSelectedSet)
-                if not len(data_tree.listSelectedSet) == 0:
-                    last_word = data_tree.listSelectedSet[-1]
-                    if not last_word == str(data_tree.l_passage):
-                        num_action_procs += 1
-                        action_tree_list.append(data_tree)
-                    else:
-                        self.finished_tree.append(data_tree)
-                else:
-                    num_action_procs += 1
-                    action_tree_list.append(data_tree)
-            action_pool = ProcessPool(nodes=num_action_procs)
-            action_results = action_pool.amap(action_sub_tree, action_tree_list)
-            while not action_results.ready():
-                time.sleep(0.1)
-            for data_tree in action_results.get():
-                #print('has take action ', data_tree.listSelectedSet)
-                action_result_list.append(data_tree)
-            self.tree_list = action_result_list
+            tree_are_done = mp.Queue()
+            log = mp.Queue()
+            processes = []
+            lock = mp.Lock()
+
+            for w in range(self.para_size):
+                p = mp.Process(target=do_search, args=(lock, tree_to_accomplish_list[w], main_rf_value_list[w], main_rf_policy_list[w], tree_are_done, log))
+                processes.append(p)
+                time.sleep(0.001)
+                p.start()
+
+            while not len(result_list) == self.para_size:
+                while not tree_are_done.empty():
+                    dt = tree_are_done.get()
+                    #print ('ready',dt.q_id)
+                    result_list.append(dt)
+
+                for id, pc_queue in enumerate(main_rf_policy_list, 0):
+                    while not pc_queue.empty():
+                        tmp = pc_queue.get()
+                        self.graph.feed_dict = self.feed_dict_item[id]
+                        p_id, p_pred = self.graph.get_policy(tmp[0], tmp[1])
+                        p = []
+                        p.append(p_id)
+                        p.append(p_pred)
+                        tree_to_accomplish_list[id].put(p)
+                        # completing process
+                for id, val_queue in enumerate(main_rf_value_list, 0):
+                    while not val_queue.empty():
+                        tmp = val_queue.get()
+                        self.graph.feed_dict = self.feed_dict_item[id]
+                        p = self.graph.value_function(tmp[0])
+                        tree_to_accomplish_list[id].put(p[0][0])
+                        #print 333333
+                        # completing process
+            for p in processes:
+                p.join()
+
+            self.tree_list = result_list
+            #print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
 
             #print '%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%'
 
-        for t in action_result_list:
-            self.finished_tree.append(t)
-        time_tree_end = time.time()
-
         # create nodes --->search  until finish ----
-        for data_tree in self.finished_tree:
+        for data_tree in self.tree_list:
             pred_answers, ref_answers = [], []
             p_words_list = data_tree.words_id_list
             listSelectedSet_words = []
@@ -354,7 +712,7 @@ class PSCHTree(object):
             # print 'bleu_rouge(value_with_mcts): '
             # print value_with_mcts
             data_tree.result_value = value_with_mcts
-
+        '''
         # print '============= start compute loss ==================='
         loss_time_start = time.time()
         first_sample_list = []
@@ -472,282 +830,283 @@ class PSCHTree(object):
         #     self.logger.info('Average loss from batch {} to {} is {}'.format(
         #         bitx - log_every_n_batch + 1, bitx, n_batch_loss / log_every_n_batch))
         return 1.0 * total_loss / num_loss
+        '''
+        return 0.0
 
 
-
-    def evaluate_tree_search(self, evaluate_batch):
-        #print '++++++++++++++++ start evaluation ++++++++++++++++'
-        star_time = time.time()
-        trees = []
-        # self.tree_batch = evaluate_batch
-        time_tree_start = time.time()
-        # 1)initialize trees
-        for bitx in range(self.batch_size):
-            # print '-------------- yeild ' + str(bitx) + '-------------'
-            if evaluate_batch['p_length'][bitx] > self.max_p_len:
-                evaluate_batch['p_length'][bitx] = self.max_p_len
-                evaluate_batch['candidates'][bitx] = self.tree_batch['candidates'][bitx][:(self.max_p_len)]  # ???
-            tree = {'tree_id': self.tree_batch['tree_ids'][bitx],
-                    'question_token_ids': evaluate_batch['root_tokens'][bitx],
-                    'passage_token_id': evaluate_batch['candidates'][bitx],
-                    'q_length': evaluate_batch['q_length'][bitx],
-                    'p_length': evaluate_batch['p_length'][bitx],
-                    'question_type': evaluate_batch['question_type'][bitx],
-                    'ref_answer': evaluate_batch['ref_answers'][bitx]
-                    }
-            trees.append(tree)
-
-
-        # init the root node and expand the root node
-
-        self.tree_list = []
-        self.finished_tree = []
-        init_list = []
-        #print ('Max parallel processes size: ', self.para_size)
-        pool = ProcessPool(nodes=self.para_size)
-        results = pool.amap(init_sub_tree, trees)
-        while not results.ready():
-            time.sleep(0.1)
-        for data_tree in results.get():
-            #print('has init ', data_tree.q_id)
-            data_tree.beta = self.beta
-            data_tree.expand_node = data_tree.tree.tree.get_node(data_tree.tree.tree.root)
-            init_list.append(data_tree)
-
-        self.tree_list = self.expands(init_list)
-
-        # search tree
-
-        for t in range(self.max_a_len):
-            #print ('Answer_len', t)
-            if len(self.tree_list) == 0:
-                break
-            for data_tree in self.tree_list:
-                has_visit_num = 0.0
-                tmp_node = data_tree.tree.tree.get_node(data_tree.start_node)
-                for child_id in tmp_node.fpointer:
-                    child_node = data_tree.tree.tree.get_node(child_id)
-                    has_visit_num += child_node.data.num
-                data_tree.tree.count = has_visit_num
-            # search_time =int(self.search_time- has_visit_num)
-            for s_time in range(self.search_time):
-                search_tree_list = []
-                #print ('search time', s_time)
-                start_one_time = time.time()
-                search_pool = ProcessPool(nodes=self.para_size)
-                search_results = search_pool.amap(search_sub_tree, self.tree_list)
-                while not search_results.ready():
-                    time.sleep(0.1)
-                for data_tree in search_results.get():
-                    #print('has search ', data_tree.q_id)
-                    search_tree_list.append(data_tree)
-
-                self.tree_list = self._search_vv_test(search_tree_list)
-
-                tree_need_expand_list = []
-                tree_no_need_expand_list = []
-                for data_tree in self.tree_list:
-                    data_tree_update = self._updates(data_tree)
-                    tmp_node = data_tree_update.tmp_node
-                    l_passage = data_tree_update.l_passage  # ???
-                    word_id = int(tmp_node.data.word[-1])
-                    if tmp_node.is_leaf() and (word_id < (l_passage)):
-                        data_tree_update.expand_node = tmp_node
-                        tree_need_expand_list.append(data_tree_update)
-                    else:
-                        tree_no_need_expand_list.append(data_tree_update)
-
-                self.tree_list = self.expands(tree_need_expand_list)
-                self.tree_list = self.tree_list + tree_no_need_expand_list
-
-            # print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
-            num_action_procs = 0
-            self.finished_tree = []
-            action_tree_list = []
-            action_result_list = []
-            for data_tree in self.tree_list:
-                #print ('######### tree.listSelectedSet: ', data_tree.listSelectedSet)
-                if not len(data_tree.listSelectedSet) == 0:
-                    last_word = data_tree.listSelectedSet[-1]
-                    if not last_word == str(data_tree.l_passage):
-                        num_action_procs += 1
-                        action_tree_list.append(data_tree)
-                    else:
-                        self.finished_tree.append(data_tree)
-                else:
-                    num_action_procs += 1
-                    action_tree_list.append(data_tree)
-            action_pool = ProcessPool(nodes=num_action_procs)
-            action_results = action_pool.amap(action_sub_tree, action_tree_list)
-            while not action_results.ready():
-                time.sleep(0.1)
-            for data_tree in action_results.get():
-                #print('has take action ', data_tree.listSelectedSet)
-                action_result_list.append(data_tree)
-            self.tree_list = action_result_list
-
-            # print '%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%'
-
-        for t in self.tree_list:
-            self.finished_tree.append(t)
-        time_tree_end = time.time()
-
-        # print ('&&&&&&&&&&&&&&& tree search time = %3.2f s &&&&&&&&&&&&' % (time_tree_end - time_tree_start))
-        # print ('--------------- end tree:', len(self.finished_tree))
-        # create nodes --->search  until finish ----
-
-
-        sum_loss, num_loss = 0, 0
-        all_pred_answers, all_ref_answers = [], []
-        for data_tree in self.finished_tree:
-            pred_answers, ref_answers = [], []
-            p_words_list = data_tree.words_id_list
-            listSelectedSet_words = []
-            listSelectedSet = map(eval, data_tree.listSelectedSet)
-            for idx in listSelectedSet:
-                listSelectedSet_words.append(p_words_list[idx])
-            strr123 = self.vocab.recover_from_ids(listSelectedSet_words, 0)
-            pp = {'question_id': data_tree.q_id,
-                                 'question_type': data_tree.q_type,
-                                 'answers': [''.join(strr123)],
-                                 'entity_answers': [[]],
-                                 'yesno_answers': []}
-            rr = {'question_id': data_tree.q_id,
-                                'question_type': data_tree.q_type,
-                                'answers': data_tree.ref_answer,
-                                'entity_answers': [[]],
-                                'yesno_answers': []}
-            pred_answers.append(pp)
-            ref_answers.append(rr)
-            all_pred_answers.append(pp)
-            all_ref_answers.append(rr)
-            if len(ref_answers) > 0:
-                pred_dict, ref_dict = {}, {}
-                for pred, ref in zip(pred_answers, ref_answers):
-                    question_id = ref['question_id']
-                    if len(ref['answers']) > 0:
-                        pred_dict[question_id] = normalize(pred['answers'])
-                        ref_dict[question_id] = normalize(ref['answers'])
-                bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
-            else:
-                bleu_rouge = 0
-            data_tree.result_value = bleu_rouge
-        first_sample_list = []
-        sample_list = []
-
-        # save lists of feed_dict
-        p_list, q_list = [], []
-        p_length, q_length = [], []
-        p_data_list = []
-        pad = 0
-        # selected_words_list = []
-        # candidate_words_list = []
-        for t_id, data_tree in enumerate(self.finished_tree, 0):
-            tree_data = data_tree.tree.get_raw_tree_data()
-            listSelectedSet = data_tree.listSelectedSet
-            # print ('listSelectedSet', listSelectedSet)
-            pad = [t_id, len(tree_data['passage_token_id']) - 1]
-            # print ('pad',pad)
-
-            words_list = [i for i in range(data_tree.l_passage + 1)]
-            for prob_id, prob_data in enumerate(data_tree.p_data):
-                # print 'p_data: '
-                # print prob_id
-                # print prob_data
-                c = []
-                policy = []
-                for prob_key, prob_value in prob_data.items():
-                    c.append(prob_key)
-                    policy.append(prob_value)
-                if prob_id == 0:
-                    input_v = data_tree.result_value[self.evluation_m]
-                    feed_dict = {self.p: [tree_data['passage_token_id']],
-                                 self.q: [tree_data['question_token_ids']],
-                                 self.p_length: [tree_data['p_length']],
-                                 self.q_length: [tree_data['q_length']],
-                                 self.words_list: words_list,
-                                 self.dropout_keep_prob: 1.0}
-
-                    feeddict = dict(feed_dict.items() + {self.policy: [policy], self.v: [[input_v]]}.items())
-
-                    first_sample_list.append(feeddict)
-
-                    loss_first = self.sess.run( self.loss_first, feed_dict=feeddict)
-                    sum_loss += loss_first
-                    num_loss += 1
-                    # print('loss,first', loss_first)
-                else:
-                    p_list.append(tree_data['passage_token_id'])
-                    q_list.append(tree_data['question_token_ids'])
-                    p_length.append(tree_data['p_length'])
-                    q_length.append(tree_data['q_length'])
-                    p_data_list.append(
-                        [t_id, listSelectedSet[:prob_id], c, policy, data_tree.result_value[self.evluation_m]])
-
-
-
-                    # for sample in first_sample_list:
-
-                    #     loss_first = self.sess.run(self.loss_first, feed_dict=sample)
-                    #     print('loss,first', loss_first)
-                    # for sample in sample_list:
-        policy_c_id_list = []
-        fd_selected_list = []
-        selected_length_list = []
-        candidate_length_list = []
-        fd_policy_c_id_list = []
-        policy_list = []
-        value_list = []
-        for idx, sample in enumerate(p_data_list, 0):
-            # print ('sample', sample)
-            t_id = sample[0]
-            selected_words = sample[1]
-            candidate_words = sample[2]
-            policy = sample[3]
-            value = sample[4]
-
-            selected_words = map(eval, selected_words)
-            tmp = []
-            for word in selected_words:
-                tmp.append([t_id, word])
-            fd_selected_list.append(tmp)
-            selected_length_list.append(len(selected_words))
-
-            candidate_words = map(eval, candidate_words)
-            tmp2 = []
-            for word2 in candidate_words:
-                tmp2.append([t_id, word2])
-            fd_policy_c_id_list.append(tmp2)
-            # no order version
-            candidate_length_list.append(len(candidate_words))
-            assert len(candidate_words) == len(policy)
-            policy_list.append(policy)
-            value_list.append(value)
-        fd_selected_list = self._pv_padding(fd_selected_list, selected_length_list, pad)
-        fd_policy_c_id_list = self._pv_padding(fd_policy_c_id_list, candidate_length_list, pad)
-        policy_list = self._pv_padding(policy_list, candidate_length_list, 0.0)
-        # print 'value_list'
-        # print np.shape(value_list)
-        # print value_list
-        if not (len(policy_list)) == 0:
-            feed_dict = {self.p: p_list,
-                         self.q: q_list,
-                         self.p_length: p_length,
-                         self.q_length: q_length,
-                         self.dropout_keep_prob: 1.0}
-        feeddict = dict(feed_dict.items() + {
-            self.selected_id_list: fd_selected_list, self.seq_length: selected_length_list,
-            self.selected_batch_size: len(selected_length_list),
-            self.candidate_id: fd_policy_c_id_list, self.candidate_batch_size: [len(fd_policy_c_id_list), 1, 1],
-            self.policy: policy_list, self.v: [value_list]}.items())
-        loss = self.sess.run( self.loss, feed_dict=feeddict)
-        loss_time_end = time.time()
-        sum_loss += loss
-        num_loss += 1
-
-        print('loss', loss)
-
-        return all_pred_answers, all_ref_answers, 1.0 * sum_loss / num_loss
+    # def evaluate_tree_search(self, evaluate_batch):
+    #     #print '++++++++++++++++ start evaluation ++++++++++++++++'
+    #     star_time = time.time()
+    #     trees = []
+    #     # self.tree_batch = evaluate_batch
+    #     time_tree_start = time.time()
+    #     # 1)initialize trees
+    #     for bitx in range(self.batch_size):
+    #         # print '-------------- yeild ' + str(bitx) + '-------------'
+    #         if evaluate_batch['p_length'][bitx] > self.max_p_len:
+    #             evaluate_batch['p_length'][bitx] = self.max_p_len
+    #             evaluate_batch['candidates'][bitx] = self.tree_batch['candidates'][bitx][:(self.max_p_len)]  # ???
+    #         tree = {'tree_id': self.tree_batch['tree_ids'][bitx],
+    #                 'question_token_ids': evaluate_batch['root_tokens'][bitx],
+    #                 'passage_token_id': evaluate_batch['candidates'][bitx],
+    #                 'q_length': evaluate_batch['q_length'][bitx],
+    #                 'p_length': evaluate_batch['p_length'][bitx],
+    #                 'question_type': evaluate_batch['question_type'][bitx],
+    #                 'ref_answer': evaluate_batch['ref_answers'][bitx]
+    #                 }
+    #         trees.append(tree)
+    #
+    #
+    #     # init the root node and expand the root node
+    #
+    #     self.tree_list = []
+    #     self.finished_tree = []
+    #     init_list = []
+    #     #print ('Max parallel processes size: ', self.para_size)
+    #     pool = ProcessPool(nodes=self.para_size)
+    #     results = pool.amap(init_sub_tree, trees)
+    #     while not results.ready():
+    #         time.sleep(0.1)
+    #     for data_tree in results.get():
+    #         #print('has init ', data_tree.q_id)
+    #         data_tree.beta = self.beta
+    #         data_tree.expand_node = data_tree.tree.tree.get_node(data_tree.tree.tree.root)
+    #         init_list.append(data_tree)
+    #
+    #     self.tree_list = self.expands(init_list)
+    #
+    #     # search tree
+    #
+    #     for t in range(self.max_a_len):
+    #         #print ('Answer_len', t)
+    #         if len(self.tree_list) == 0:
+    #             break
+    #         for data_tree in self.tree_list:
+    #             has_visit_num = 0.0
+    #             tmp_node = data_tree.tree.tree.get_node(data_tree.start_node)
+    #             for child_id in tmp_node.fpointer:
+    #                 child_node = data_tree.tree.tree.get_node(child_id)
+    #                 has_visit_num += child_node.data.num
+    #             data_tree.tree.count = has_visit_num
+    #         # search_time =int(self.search_time- has_visit_num)
+    #         for s_time in range(self.search_time):
+    #             search_tree_list = []
+    #             #print ('search time', s_time)
+    #             start_one_time = time.time()
+    #             search_pool = ProcessPool(nodes=self.para_size)
+    #             search_results = search_pool.amap(search_sub_tree, self.tree_list)
+    #             while not search_results.ready():
+    #                 time.sleep(0.1)
+    #             for data_tree in search_results.get():
+    #                 #print('has search ', data_tree.q_id)
+    #                 search_tree_list.append(data_tree)
+    #
+    #             self.tree_list = self._search_vv_test(search_tree_list)
+    #
+    #             tree_need_expand_list = []
+    #             tree_no_need_expand_list = []
+    #             for data_tree in self.tree_list:
+    #                 data_tree_update = self._updates(data_tree)
+    #                 tmp_node = data_tree_update.tmp_node
+    #                 l_passage = data_tree_update.l_passage  # ???
+    #                 word_id = int(tmp_node.data.word[-1])
+    #                 if tmp_node.is_leaf() and (word_id < (l_passage)):
+    #                     data_tree_update.expand_node = tmp_node
+    #                     tree_need_expand_list.append(data_tree_update)
+    #                 else:
+    #                     tree_no_need_expand_list.append(data_tree_update)
+    #
+    #             self.tree_list = self.expands(tree_need_expand_list)
+    #             self.tree_list = self.tree_list + tree_no_need_expand_list
+    #
+    #         # print '%%%%%%%%%%%%%%%%%%% start take action %%%%%%%%%%%%%%'
+    #         num_action_procs = 0
+    #         self.finished_tree = []
+    #         action_tree_list = []
+    #         action_result_list = []
+    #         for data_tree in self.tree_list:
+    #             #print ('######### tree.listSelectedSet: ', data_tree.listSelectedSet)
+    #             if not len(data_tree.listSelectedSet) == 0:
+    #                 last_word = data_tree.listSelectedSet[-1]
+    #                 if not last_word == str(data_tree.l_passage):
+    #                     num_action_procs += 1
+    #                     action_tree_list.append(data_tree)
+    #                 else:
+    #                     self.finished_tree.append(data_tree)
+    #             else:
+    #                 num_action_procs += 1
+    #                 action_tree_list.append(data_tree)
+    #         action_pool = ProcessPool(nodes=num_action_procs)
+    #         action_results = action_pool.amap(action_sub_tree, action_tree_list)
+    #         while not action_results.ready():
+    #             time.sleep(0.1)
+    #         for data_tree in action_results.get():
+    #             #print('has take action ', data_tree.listSelectedSet)
+    #             action_result_list.append(data_tree)
+    #         self.tree_list = action_result_list
+    #
+    #         # print '%%%%%%%%%%%%%% end take action %%%%%%%%%%%%%%%'
+    #
+    #     for t in self.tree_list:
+    #         self.finished_tree.append(t)
+    #     time_tree_end = time.time()
+    #
+    #     # print ('&&&&&&&&&&&&&&& tree search time = %3.2f s &&&&&&&&&&&&' % (time_tree_end - time_tree_start))
+    #     # print ('--------------- end tree:', len(self.finished_tree))
+    #     # create nodes --->search  until finish ----
+    #
+    #
+    #     sum_loss, num_loss = 0, 0
+    #     all_pred_answers, all_ref_answers = [], []
+    #     for data_tree in self.finished_tree:
+    #         pred_answers, ref_answers = [], []
+    #         p_words_list = data_tree.words_id_list
+    #         listSelectedSet_words = []
+    #         listSelectedSet = map(eval, data_tree.listSelectedSet)
+    #         for idx in listSelectedSet:
+    #             listSelectedSet_words.append(p_words_list[idx])
+    #         strr123 = self.vocab.recover_from_ids(listSelectedSet_words, 0)
+    #         pp = {'question_id': data_tree.q_id,
+    #                              'question_type': data_tree.q_type,
+    #                              'answers': [''.join(strr123)],
+    #                              'entity_answers': [[]],
+    #                              'yesno_answers': []}
+    #         rr = {'question_id': data_tree.q_id,
+    #                             'question_type': data_tree.q_type,
+    #                             'answers': data_tree.ref_answer,
+    #                             'entity_answers': [[]],
+    #                             'yesno_answers': []}
+    #         pred_answers.append(pp)
+    #         ref_answers.append(rr)
+    #         all_pred_answers.append(pp)
+    #         all_ref_answers.append(rr)
+    #         if len(ref_answers) > 0:
+    #             pred_dict, ref_dict = {}, {}
+    #             for pred, ref in zip(pred_answers, ref_answers):
+    #                 question_id = ref['question_id']
+    #                 if len(ref['answers']) > 0:
+    #                     pred_dict[question_id] = normalize(pred['answers'])
+    #                     ref_dict[question_id] = normalize(ref['answers'])
+    #             bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+    #         else:
+    #             bleu_rouge = 0
+    #         data_tree.result_value = bleu_rouge
+    #     first_sample_list = []
+    #     sample_list = []
+    #
+    #     # save lists of feed_dict
+    #     p_list, q_list = [], []
+    #     p_length, q_length = [], []
+    #     p_data_list = []
+    #     pad = 0
+    #     # selected_words_list = []
+    #     # candidate_words_list = []
+    #     for t_id, data_tree in enumerate(self.finished_tree, 0):
+    #         tree_data = data_tree.tree.get_raw_tree_data()
+    #         listSelectedSet = data_tree.listSelectedSet
+    #         # print ('listSelectedSet', listSelectedSet)
+    #         pad = [t_id, len(tree_data['passage_token_id']) - 1]
+    #         # print ('pad',pad)
+    #
+    #         words_list = [i for i in range(data_tree.l_passage + 1)]
+    #         for prob_id, prob_data in enumerate(data_tree.p_data):
+    #             # print 'p_data: '
+    #             # print prob_id
+    #             # print prob_data
+    #             c = []
+    #             policy = []
+    #             for prob_key, prob_value in prob_data.items():
+    #                 c.append(prob_key)
+    #                 policy.append(prob_value)
+    #             if prob_id == 0:
+    #                 input_v = data_tree.result_value[self.evluation_m]
+    #                 feed_dict = {self.p: [tree_data['passage_token_id']],
+    #                              self.q: [tree_data['question_token_ids']],
+    #                              self.p_length: [tree_data['p_length']],
+    #                              self.q_length: [tree_data['q_length']],
+    #                              self.words_list: words_list,
+    #                              self.dropout_keep_prob: 1.0}
+    #
+    #                 feeddict = dict(feed_dict.items() + {self.policy: [policy], self.v: [[input_v]]}.items())
+    #
+    #                 first_sample_list.append(feeddict)
+    #
+    #                 loss_first = self.sess.run( self.loss_first, feed_dict=feeddict)
+    #                 sum_loss += loss_first
+    #                 num_loss += 1
+    #                 # print('loss,first', loss_first)
+    #             else:
+    #                 p_list.append(tree_data['passage_token_id'])
+    #                 q_list.append(tree_data['question_token_ids'])
+    #                 p_length.append(tree_data['p_length'])
+    #                 q_length.append(tree_data['q_length'])
+    #                 p_data_list.append(
+    #                     [t_id, listSelectedSet[:prob_id], c, policy, data_tree.result_value[self.evluation_m]])
+    #
+    #
+    #
+    #                 # for sample in first_sample_list:
+    #
+    #                 #     loss_first = self.sess.run(self.loss_first, feed_dict=sample)
+    #                 #     print('loss,first', loss_first)
+    #                 # for sample in sample_list:
+    #     policy_c_id_list = []
+    #     fd_selected_list = []
+    #     selected_length_list = []
+    #     candidate_length_list = []
+    #     fd_policy_c_id_list = []
+    #     policy_list = []
+    #     value_list = []
+    #     for idx, sample in enumerate(p_data_list, 0):
+    #         # print ('sample', sample)
+    #         t_id = sample[0]
+    #         selected_words = sample[1]
+    #         candidate_words = sample[2]
+    #         policy = sample[3]
+    #         value = sample[4]
+    #
+    #         selected_words = map(eval, selected_words)
+    #         tmp = []
+    #         for word in selected_words:
+    #             tmp.append([t_id, word])
+    #         fd_selected_list.append(tmp)
+    #         selected_length_list.append(len(selected_words))
+    #
+    #         candidate_words = map(eval, candidate_words)
+    #         tmp2 = []
+    #         for word2 in candidate_words:
+    #             tmp2.append([t_id, word2])
+    #         fd_policy_c_id_list.append(tmp2)
+    #         # no order version
+    #         candidate_length_list.append(len(candidate_words))
+    #         assert len(candidate_words) == len(policy)
+    #         policy_list.append(policy)
+    #         value_list.append(value)
+    #     fd_selected_list = self._pv_padding(fd_selected_list, selected_length_list, pad)
+    #     fd_policy_c_id_list = self._pv_padding(fd_policy_c_id_list, candidate_length_list, pad)
+    #     policy_list = self._pv_padding(policy_list, candidate_length_list, 0.0)
+    #     # print 'value_list'
+    #     # print np.shape(value_list)
+    #     # print value_list
+    #     if not (len(policy_list)) == 0:
+    #         feed_dict = {self.p: p_list,
+    #                      self.q: q_list,
+    #                      self.p_length: p_length,
+    #                      self.q_length: q_length,
+    #                      self.dropout_keep_prob: 1.0}
+    #     feeddict = dict(feed_dict.items() + {
+    #         self.selected_id_list: fd_selected_list, self.seq_length: selected_length_list,
+    #         self.selected_batch_size: len(selected_length_list),
+    #         self.candidate_id: fd_policy_c_id_list, self.candidate_batch_size: [len(fd_policy_c_id_list), 1, 1],
+    #         self.policy: policy_list, self.v: [value_list]}.items())
+    #     loss = self.sess.run( self.loss, feed_dict=feeddict)
+    #     loss_time_end = time.time()
+    #     sum_loss += loss
+    #     num_loss += 1
+    #
+    #     print('loss', loss)
+    #
+    #     return all_pred_answers, all_ref_answers, 1.0 * sum_loss / num_loss
 
     def evaluate_policy(self, evaluate_batch):
         print '++++++++++++++++ start evaluate_policy ++++++++++++++++'
@@ -1664,5 +2023,4 @@ class PSCHTree(object):
 if __name__ == '__main__':
     1 == 1
     # tree_search()
-    test_tf()
     # tree_search()

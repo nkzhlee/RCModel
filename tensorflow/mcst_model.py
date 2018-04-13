@@ -68,6 +68,12 @@ class MCSTmodel(object):
         #test paras
         self.search_time = args.search_time
         self.beta = args.beta
+        #time
+        self.init_times = 0.0
+        self.search_times = 0.0
+        self.act_times = 0.0
+        self.grad_times = 0.0
+
 
         # the vocab
         self.vocab = vocab
@@ -83,6 +89,7 @@ class MCSTmodel(object):
 
         total_loss, num_loss = 0, 0
         for bitx, batch in enumerate(train_batches, 1):
+            s_time = time.time()
             print '------ Batch Question: ' + str(bitx)
             '''
             feed_dict = {self.p: batch['passage_token_ids'],
@@ -106,12 +113,51 @@ class MCSTmodel(object):
             }
             feed_dict = {}
             pmct.feed_in_batch(tree_batch, batch_size, feed_dict, self.m_value)
-            loss = pmct.tree_search()
+            loss = pmct.tree_search(bitx)
             total_loss += loss
             num_loss += 1
+            print ('use time : ', (time.time()-s_time)/60)
         #return 0
         return 1.0 * total_loss / num_loss
 
+    # def _train_epoch_new(self, pmct, train_batches, batch_size, dropout_keep_prob):
+    #     """
+    #            Trains the model for a single epoch.
+    #            Args:
+    #                train_batches: iterable batch data for training
+    #                dropout_keep_prob: float value indicating dropout keep probability
+    #            """
+    #
+    #     total_loss, num_loss = 0, 0
+    #     for bitx, batch in enumerate(train_batches, 1):
+    #         print '------ Batch Question: ' + str(bitx)
+    #         '''
+    #         feed_dict = {self.p: batch['passage_token_ids'],
+    #                           self.q: [batch['question_token_ids']],
+    #                           self.p_length: batch['passage_length'],
+    #                           self.q_length: [batch['question_length']],
+    #                           self.dropout_keep_prob: dropout_keep_prob}
+    #         '''
+    #         pred_answers = {}
+    #         #print str(ref_answers)
+    #         listSelectedSet = []
+    #         p_data = []
+    #         tree_batch = {
+    #             'tree_ids': batch['question_ids'],
+    #             'question_type': batch['question_types'],
+    #             'root_tokens': batch['question_token_ids'],
+    #             'q_length': batch['question_length'],
+    #             'candidates': batch['passage_token_ids'],
+    #             'p_length': batch['passage_length'],
+    #             'ref_answers': batch['ref_answers'],
+    #         }
+    #         feed_dict = {}
+    #         pmct.feed_in_batch(tree_batch, batch_size, feed_dict, self.m_value)
+    #         loss = pmct.tree_search()
+    #         total_loss += loss
+    #         num_loss += 1
+    #     #return 0
+    #     return 1.0 * total_loss / num_loss
 
 
     def _train_epoch(self, step , train_batches, dropout_keep_prob):
@@ -210,38 +256,38 @@ class MCSTmodel(object):
                     eval_loss, total_loss, num_loss = 0, 0, 0
                     eval_batches = data.gen_batches('dev', batch_size, pad_id, shuffle=False)
                     #bleu_rouge,test_step = self.evaluate(test_step, eval_batches,dropout_keep_prob)
-                    ref_answers, pre_answers = [],[]
-                    for bitx, batch in enumerate(eval_batches, 1):
-                        print '------ Batch Question: ' + str(bitx)
-                        #print batch
-                        tree_batch = {
-                            'tree_ids': batch['question_ids'],
-                            'question_type': batch['question_types'],
-                            'root_tokens': batch['question_token_ids'],
-                            'q_length': batch['question_length'],
-                            'candidates': batch['passage_token_ids'],
-                            'p_length': batch['passage_length'],
-                            'ref_answers': batch['ref_answers'],
-                        }
-                        p, r, loss = pmct.evaluate_tree_search(tree_batch)
-                        total_loss += loss
-                        num_loss += 1
-                        ref_answers = ref_answers + r
-                        pre_answers = pre_answers + p
-                    if len(ref_answers) > 0:
-                        pred_dict, ref_dict = {}, {}
-                        for pred, ref in zip(pre_answers, ref_answers):
-                            question_id = ref['question_id']
-                            if len(ref['answers']) > 0:
-                                pred_dict[question_id] = normalize(pred['answers'])
-                                ref_dict[question_id] = normalize(ref['answers'])
-                                if bitx%5 == 0:
-                                    print ('pred answer', pred_dict[question_id])
-                                    print ('ref answer', ref_dict[question_id] )
-                        bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
-                    #eval_loss, bleu_rouge = self.evaluate(eval_batches)
-                    self.logger.info('Dev eval loss {}'.format(1.0 * total_loss / num_loss))
-                    self.logger.info('Dev eval result: {}'.format(bleu_rouge))
+                    # ref_answers, pre_answers = [],[]
+                    # for bitx, batch in enumerate(eval_batches, 1):
+                    #     print '------ Batch Question: ' + str(bitx)
+                    #     #print batch
+                    #     tree_batch = {
+                    #         'tree_ids': batch['question_ids'],
+                    #         'question_type': batch['question_types'],
+                    #         'root_tokens': batch['question_token_ids'],
+                    #         'q_length': batch['question_length'],
+                    #         'candidates': batch['passage_token_ids'],
+                    #         'p_length': batch['passage_length'],
+                    #         'ref_answers': batch['ref_answers'],
+                    #     }
+                    #     p, r, loss = pmct.evaluate_tree_search(tree_batch)
+                    #     total_loss += loss
+                    #     num_loss += 1
+                    #     ref_answers = ref_answers + r
+                    #     pre_answers = pre_answers + p
+                    # if len(ref_answers) > 0:
+                    #     pred_dict, ref_dict = {}, {}
+                    #     for pred, ref in zip(pre_answers, ref_answers):
+                    #         question_id = ref['question_id']
+                    #         if len(ref['answers']) > 0:
+                    #             pred_dict[question_id] = normalize(pred['answers'])
+                    #             ref_dict[question_id] = normalize(ref['answers'])
+                    #             if bitx%5 == 0:
+                    #                 print ('pred answer', pred_dict[question_id])
+                    #                 print ('ref answer', ref_dict[question_id] )
+                    #     bleu_rouge = compute_bleu_rouge(pred_dict, ref_dict)
+                    # #eval_loss, bleu_rouge = self.evaluate(eval_batches)
+                    # self.logger.info('Dev eval loss {}'.format(1.0 * total_loss / num_loss))
+                    #self.logger.info('Dev eval result: {}'.format(bleu_rouge))
             #
             #         if bleu_rouge['Bleu-4'] > max_bleu_4:
             #             pmct.save(save_dir, save_prefix)
@@ -251,7 +297,7 @@ class MCSTmodel(object):
             # else:
             #     pmct.save(save_dir, save_prefix + '_' + str(epoch))
         self.logger.info(
-            'All Train time is {} min'.format(str(( time.time() - start_all_time) / 60)))
+            'All Train time is {} min'.format(str((time.time() - start_all_time) / 60)))
 
 
 
